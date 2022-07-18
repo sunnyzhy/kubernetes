@@ -1,17 +1,211 @@
 # 安装 kubernetes
 
-## 1 安装 docker
+## 前言
 
-[安装 docker](https://github.com/sunnyzhy/docker/blob/master/%E5%AE%89%E8%A3%85docker.md '安装 docker')
+***基于 containerd 的容器运行时部署 k8s 集群。***
 
-## 2 安装 kubernetes
+- 准备三台物理机
+    |物理机IP|物理机HostName|角色|
+    |--|--|--|
+    |192.168.5.163|centos-docker-163|manager|
+    |192.168.5.164|centos-docker-164|worker|
+    |192.168.5.165|centos-docker-165|worker|
 
-### 2.1 安装 yum 源
+- 三台物理机都需要安装
+   - ```Container Runtimes```
+   - ```kubelet```
+   - ```kubeadm```
+   - ```kubectl```
 
-[kubernetes下载地址](https://mirrors.aliyun.com/kubernetes/ 'kubernetes镜像')
+## 安装 Container Runtimes
+
+### 安装必备环境
 
 ```bash
-# vim /etc/yum.repos.d/kubernates.repo
+# vim /etc/modules-load.d/k8s.conf
+```
+
+```conf
+overlay
+br_netfilter
+```
+
+```bash
+# modprobe overlay
+
+# modprobe br_netfilter
+
+# vim /etc/sysctl.d/k8s.conf
+```
+
+```conf
+net.bridge.bridge-nf-call-iptables  = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+net.ipv4.ip_forward                 = 1
+```
+
+```bash
+# sysctl --system
+
+# yum install -y grubby
+
+# grubby --update-kernel=ALL --args="systemd.unified_cgroup_hierarchy=1"
+```
+
+### 安装 containerd
+
+[containerd](https://github.com/containerd/containerd/releases 'containerd')
+
+```bash
+# wget -c https://github.com/containerd/containerd/releases/download/v1.6.6/containerd-1.6.6-linux-amd64.tar.gz -P /usr/local/
+
+# tar Cxzvf /usr/local /usr/local/containerd-1.6.6-linux-amd64.tar.gz
+bin/
+bin/containerd-shim
+bin/containerd
+bin/containerd-shim-runc-v1
+bin/containerd-stress
+bin/containerd-shim-runc-v2
+bin/ctr
+```
+
+### 安装 systemd
+
+[containerd.service](https://github.com/containerd/containerd/blob/main/containerd.service 'containerd.service')
+
+```bash
+# mkdir -p /usr/local/lib/systemd/system
+
+# vim /usr/local/lib/systemd/system/containerd.service
+```
+
+由于 ```raw#containerd.service``` 无法下载，所以贴出 ```containerd.service``` 源文件内容:
+
+```service
+# Copyright The containerd Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+[Unit]
+Description=containerd container runtime
+Documentation=https://containerd.io
+After=network.target local-fs.target
+
+[Service]
+ExecStartPre=-/sbin/modprobe overlay
+ExecStart=/usr/local/bin/containerd
+
+Type=notify
+Delegate=yes
+KillMode=process
+Restart=always
+RestartSec=5
+# Having non-zero Limit*s causes performance problems due to accounting overhead
+# in the kernel. We recommend using cgroups to do container-local accounting.
+LimitNPROC=infinity
+LimitCORE=infinity
+LimitNOFILE=infinity
+# Comment TasksMax if your systemd version does not supports it.
+# Only systemd 226 and above support this version.
+TasksMax=infinity
+OOMScoreAdjust=-999
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```bash
+# chmod +x /usr/local/lib/systemd/system/containerd.service
+
+# systemctl daemon-reload
+
+# systemctl enable --now containerd
+```
+
+### 安装 runc
+
+[runc](https://github.com/opencontainers/runc/releases 'runc')
+
+```bash
+# wget -c https://github.com/opencontainers/runc/releases/download/v1.1.3/runc.amd64 -P /usr/local/
+
+# install -m 755 /usr/local/runc.amd64 /usr/local/sbin/runc
+```
+
+### 安装 CNI plugins
+
+[CNI plugins](https://github.com/containernetworking/plugins/releases 'CNI plugins')
+
+```bash
+# wget -c https://github.com/containernetworking/plugins/releases/download/v1.1.1/cni-plugins-linux-amd64-v1.1.1.tgz -P /usr/local/
+
+# mkdir -p /opt/cni/bin
+
+# tar Cxzvf /opt/cni/bin /usr/local/cni-plugins-linux-amd64-v1.1.1.tgz
+./
+./macvlan
+./static
+./vlan
+./portmap
+./host-local
+./vrf
+./bridge
+./tuning
+./firewall
+./host-device
+./sbr
+./loopback
+./dhcp
+./ptp
+./ipvlan
+./bandwidth
+```
+
+### 配置 systemd cgroup driver
+
+```bash
+# containerd config default | tee /etc/containerd/config.toml
+
+# sed -i 's+SystemdCgroup = false+SystemdCgroup = true+' /etc/containerd/config.toml
+
+# sed -i 's+k8s.gcr.io/pause:3.6+registry.aliyuncs.com/google_containers/pause:3.6+' /etc/containerd/config.toml
+
+# systemctl restart containerd
+```
+
+### 查看 containerd
+
+```bash
+# crictl --runtime-endpoint unix:///var/run/containerd/containerd.sock ps -a | grep kube | grep -v pause
+9a727650c613b       2ae1ba6417cbc       3 minutes ago       Running             kube-proxy                0                   f372f7f76d220       kube-proxy-v9lk2
+cc0c0a312d5fd       3a5aa3a515f5d       3 minutes ago       Running             kube-scheduler            0                   57ea5834c6733       kube-scheduler-centos-docker-163
+29370743dd9b4       d521dd763e2e3       3 minutes ago       Running             kube-apiserver            0                   dbf69505210f0       kube-apiserver-centos-docker-163
+8419adae1fc6b       586c112956dfc       3 minutes ago       Running             kube-controller-manager   0                   ef93d9aef0c2f       kube-controller-manager-centos-docker-163
+
+
+```
+
+## 安装 kubernetes
+
+### 配置 kubernetes 的 yum 源
+
+[kubernetes 阿里云镜像](https://developer.aliyun.com/mirror/kubernetes/ 'kubernetes 阿里云镜像')
+
+```bash
+# vim /etc/yum.repos.d/kubernetes.repo
+```
+
+```repo
 [kubernetes]
 name=Kubernetes
 baseurl=https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64/
@@ -21,41 +215,16 @@ repo_gpgcheck=1
 gpgkey=https://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg https://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg
 ```
 
-### 2.2 更新缓存
+### 安装 kubernetes
 
 ```bash
-# yum clean all
+# setenforce 0
 
-# yum -y makecache
-```
+# sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
 
-### 2.3 查看 kubernetes 版本
+# yum install -y --nogpgcheck kubelet kubeadm kubectl --disableexcludes=kubernetes
 
-```bash
-# yum list | grep kubeadm
-kubeadm.x86_64                            1.23.2-0                     kubernetes
-
-# yum list kubelet --showduplicates | sort -r
-```
-
-### 2.4 安装 kubernetes
-
-```bash
-# yum install -y kubelet kubeadm kubectl
-Installed:
-  kubeadm.x86_64 0:1.23.2-0            kubectl.x86_64 0:1.23.2-0            kubelet.x86_64 0:1.23.2-0  
-
-# rpm -ql kubelet
-/etc/kubernetes/manifests
-/etc/sysconfig/kubelet
-/usr/bin/kubelet
-/usr/lib/systemd/system/kubelet.service
-```
-
-### 2.5 测试 kubelet 服务(实际无需启动)
-
-```bash
-# systemctl start kubelet
+# systemctl enable --now kubelet
 
 # systemctl status kubelet
 ● kubelet.service - kubelet: The Kubernetes Node Agent
@@ -70,60 +239,407 @@ Installed:
 Jan 25 11:29:18 node1 systemd[1]: Unit kubelet.service entered failed state.
 Jan 25 11:29:18 node1 systemd[1]: kubelet.service failed.
 
-# systemctl stop kubelet
+# rpm -ql kubelet
+/etc/kubernetes/manifests
+/etc/sysconfig/kubelet
+/usr/bin/kubelet
+/usr/lib/systemd/system/kubelet.service
 ```
 
-### 2.6 初始化集群
+### 更新缓存
 
 ```bash
-# kubeadm init --apiserver-advertise-address=192.168.0.100 --kubernetes-version=v1.23.2 --service-cidr=10.96.0.0/12 --pod-network-cidr=10.244.0.0/16
-[init] Using Kubernetes version: v1.23.2
-[preflight] Running pre-flight checks
-	[WARNING Service-Docker]: docker service is not enabled, please run 'systemctl enable docker.service'
-	[WARNING Swap]: swap is enabled; production deployments should disable swap unless testing the NodeSwap feature gate of the kubelet
-	[WARNING Service-Kubelet]: kubelet service is not enabled, please run 'systemctl enable kubelet.service'
-error execution phase preflight: [preflight] Some fatal errors occurred:
-	[ERROR DirAvailable--var-lib-etcd]: /var/lib/etcd is not empty
-[preflight] If you know what you are doing, you can make a check non-fatal with `--ignore-preflight-errors=...`
+# yum clean all
+
+# yum -y makecache
 ```
 
-逐一解决上述的 WARNING 和 ERROR:
-
-- [WARNING Service-Docker]
-
-   ```bash
-   # systemctl enable docker.service
-   ```
-
-- [WARNING Swap]
-
-   ```bash
-   # vim /etc/sysconfig/kubelet
-   KUBELET_EXTRA_ARGS="--fail-swap-on=false"
-   
-   # kubeadm init --apiserver-advertise-address=192.168.0.100 --kubernetes-version=v1.23.2 --service-cidr=10.96.0.0/12 --pod-network-cidr=10.244.0.0/16 --ignore-preflight-errors=Swap
-   ```
-
-- [WARNING Service-Kubelet]
-
-   ```bash
-   # systemctl enable kubelet.service
-   ```
-
-- [ERROR DirAvailable--var-lib-etcd]
-
-   ```bash
-   # rm -rf /var/lib/etcd
-   ```
+### 初始化集群
 
 参数说明:
 
-- --apiserver-advertise-address: master 主机的 IP 地址
+- --control-plane-endpoint: master 主机的 IP 地址
 
-- --kubernetes-version: 当前安装的 kubernetes 的版本号
+- --kubernetes-version: 当前安装的 kubernetes 的版本号，可以不写，默认会自动获取版本
 
 - --image-repository: 镜像地址，可以使用阿里云仓库地址: ```registry.aliyuncs.com/google_containers```
 
-- --service-cidr: 默认 10.96.0.0/12, 无需更改，可以使用 ``kubeadm init --help``` 查看
+- 其他参数为可选参数
 
-- --pod-network-cidr: kubernetes 内部的 pod 节点之间网络可以使用的 IP 段，不能跟 service-cidr 重复，可以使用 ```10.244.0.0/16```
+```bash
+# kubeadm init --control-plane-endpoint=192.168.5.163 --pod-network-cidr=10.244.0.0/16 --image-repository registry.aliyuncs.com/google_containers
+[init] Using Kubernetes version: v1.24.3
+[preflight] Running pre-flight checks
+[preflight] Pulling images required for setting up a Kubernetes cluster
+[preflight] This might take a minute or two, depending on the speed of your internet connection
+[preflight] You can also perform this action in beforehand using 'kubeadm config images pull'
+[certs] Using certificateDir folder "/etc/kubernetes/pki"
+[certs] Generating "ca" certificate and key
+[certs] Generating "apiserver" certificate and key
+[certs] apiserver serving cert is signed for DNS names [centos-docker-163 kubernetes kubernetes.default kubernetes.default.svc kubernetes.default.svc.cluster.local] and IPs [10.96.0.1 192.168.5.163]
+[certs] Generating "apiserver-kubelet-client" certificate and key
+[certs] Generating "front-proxy-ca" certificate and key
+[certs] Generating "front-proxy-client" certificate and key
+[certs] Generating "etcd/ca" certificate and key
+[certs] Generating "etcd/server" certificate and key
+[certs] etcd/server serving cert is signed for DNS names [centos-docker-163 localhost] and IPs [192.168.5.163 127.0.0.1 ::1]
+[certs] Generating "etcd/peer" certificate and key
+[certs] etcd/peer serving cert is signed for DNS names [centos-docker-163 localhost] and IPs [192.168.5.163 127.0.0.1 ::1]
+[certs] Generating "etcd/healthcheck-client" certificate and key
+[certs] Generating "apiserver-etcd-client" certificate and key
+[certs] Generating "sa" key and public key
+[kubeconfig] Using kubeconfig folder "/etc/kubernetes"
+[kubeconfig] Writing "admin.conf" kubeconfig file
+[kubeconfig] Writing "kubelet.conf" kubeconfig file
+[kubeconfig] Writing "controller-manager.conf" kubeconfig file
+[kubeconfig] Writing "scheduler.conf" kubeconfig file
+[kubelet-start] Writing kubelet environment file with flags to file "/var/lib/kubelet/kubeadm-flags.env"
+[kubelet-start] Writing kubelet configuration to file "/var/lib/kubelet/config.yaml"
+[kubelet-start] Starting the kubelet
+[control-plane] Using manifest folder "/etc/kubernetes/manifests"
+[control-plane] Creating static Pod manifest for "kube-apiserver"
+[control-plane] Creating static Pod manifest for "kube-controller-manager"
+[control-plane] Creating static Pod manifest for "kube-scheduler"
+[etcd] Creating static Pod manifest for local etcd in "/etc/kubernetes/manifests"
+[wait-control-plane] Waiting for the kubelet to boot up the control plane as static Pods from directory "/etc/kubernetes/manifests". This can take up to 4m0s
+[apiclient] All control plane components are healthy after 8.504141 seconds
+[upload-config] Storing the configuration used in ConfigMap "kubeadm-config" in the "kube-system" Namespace
+[kubelet] Creating a ConfigMap "kubelet-config" in namespace kube-system with the configuration for the kubelets in the cluster
+[upload-certs] Skipping phase. Please see --upload-certs
+[mark-control-plane] Marking the node centos-docker-163 as control-plane by adding the labels: [node-role.kubernetes.io/control-plane node.kubernetes.io/exclude-from-external-load-balancers]
+[mark-control-plane] Marking the node centos-docker-163 as control-plane by adding the taints [node-role.kubernetes.io/master:NoSchedule node-role.kubernetes.io/control-plane:NoSchedule]
+[bootstrap-token] Using token: lc81r0.ts58t03upj136xd9
+[bootstrap-token] Configuring bootstrap tokens, cluster-info ConfigMap, RBAC Roles
+[bootstrap-token] Configured RBAC rules to allow Node Bootstrap tokens to get nodes
+[bootstrap-token] Configured RBAC rules to allow Node Bootstrap tokens to post CSRs in order for nodes to get long term certificate credentials
+[bootstrap-token] Configured RBAC rules to allow the csrapprover controller automatically approve CSRs from a Node Bootstrap Token
+[bootstrap-token] Configured RBAC rules to allow certificate rotation for all node client certificates in the cluster
+[bootstrap-token] Creating the "cluster-info" ConfigMap in the "kube-public" namespace
+[kubelet-finalize] Updating "/etc/kubernetes/kubelet.conf" to point to a rotatable kubelet client certificate and key
+[addons] Applied essential addon: CoreDNS
+[addons] Applied essential addon: kube-proxy
+
+Your Kubernetes control-plane has initialized successfully!
+
+To start using your cluster, you need to run the following as a regular user:
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+Alternatively, if you are the root user, you can run:
+
+  export KUBECONFIG=/etc/kubernetes/admin.conf
+
+You should now deploy a pod network to the cluster.
+Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+  https://kubernetes.io/docs/concepts/cluster-administration/addons/
+
+You can now join any number of control-plane nodes by copying certificate authorities
+and service account keys on each node and then running the following as root:
+
+  kubeadm join 192.168.5.163:6443 --token lc81r0.ts58t03upj136xd9 \
+	--discovery-token-ca-cert-hash sha256:af924c26c5b40bf4f7df8a8a396bf7904e592cde8ffc1f8bb1cece01e4f9f352 \
+	--control-plane 
+
+Then you can join any number of worker nodes by running the following on each as root:
+
+kubeadm join 192.168.5.163:6443 --token lc81r0.ts58t03upj136xd9 \
+	--discovery-token-ca-cert-hash sha256:af924c26c5b40bf4f7df8a8a396bf7904e592cde8ffc1f8bb1cece01e4f9f352 
+```
+
+提示 ```Your Kubernetes control-plane has initialized successfully!``` 说明集群初始化成功。
+
+### 授权
+
+```
+To start using your cluster, you need to run the following as a regular user:
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+```
+
+根据 ```初始化集群``` 步骤里的提示，执行授权:
+
+```bash
+# mkdir -p $HOME/.kube
+
+# cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+
+# chown $(id -u):$(id -g) $HOME/.kube/config
+```
+
+### 安装 pod network
+
+```
+You should now deploy a pod network to the cluster.
+Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+  https://kubernetes.io/docs/concepts/cluster-administration/addons/
+```
+
+根据 ```初始化集群``` 步骤里的提示，安装 pod network:
+
+1. 先下载:
+[flannel](https://github.com/flannel-io/flannel/releases 'flannel')
+
+```bash
+# wget -c https://github.com/flannel-io/flannel/releases/download/v0.18.1/flannel-v0.18.1-linux-amd64.tar.gz -P /usr/local/
+
+# mkdir -p /opt/bin/flanneld
+
+# tar Cxzvf /opt/bin/flanneld /usr/local/flannel-v0.18.1-linux-amd64.tar.gz
+flanneld
+mk-docker-opts.sh
+README.md
+```
+
+2. 安装 pod network:
+[kube-flannel.yml](https://github.com/flannel-io/flannel/blob/master/Documentation/kube-flannel.yml 'kube-flannel.yml')
+
+```bash
+# vim /usr/local/kube-flannel.yml
+```
+
+由于 ```raw#kube-flannel.yml``` 无法下载，所以贴出 ```kube-flannel.yml``` 源文件内容:
+
+```yml
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: kube-flannel
+  labels:
+    pod-security.kubernetes.io/enforce: privileged
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: flannel
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  verbs:
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - nodes/status
+  verbs:
+  - patch
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: flannel
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: flannel
+subjects:
+- kind: ServiceAccount
+  name: flannel
+  namespace: kube-flannel
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: flannel
+  namespace: kube-flannel
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: kube-flannel-cfg
+  namespace: kube-flannel
+  labels:
+    tier: node
+    app: flannel
+data:
+  cni-conf.json: |
+    {
+      "name": "cbr0",
+      "cniVersion": "0.3.1",
+      "plugins": [
+        {
+          "type": "flannel",
+          "delegate": {
+            "hairpinMode": true,
+            "isDefaultGateway": true
+          }
+        },
+        {
+          "type": "portmap",
+          "capabilities": {
+            "portMappings": true
+          }
+        }
+      ]
+    }
+  net-conf.json: |
+    {
+      "Network": "10.244.0.0/16",
+      "Backend": {
+        "Type": "vxlan"
+      }
+    }
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: kube-flannel-ds
+  namespace: kube-flannel
+  labels:
+    tier: node
+    app: flannel
+spec:
+  selector:
+    matchLabels:
+      app: flannel
+  template:
+    metadata:
+      labels:
+        tier: node
+        app: flannel
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/os
+                operator: In
+                values:
+                - linux
+      hostNetwork: true
+      priorityClassName: system-node-critical
+      tolerations:
+      - operator: Exists
+        effect: NoSchedule
+      serviceAccountName: flannel
+      initContainers:
+      - name: install-cni-plugin
+       #image: flannelcni/flannel-cni-plugin:v1.1.0 for ppc64le and mips64le (dockerhub limitations may apply)
+        image: rancher/mirrored-flannelcni-flannel-cni-plugin:v1.1.0
+        command:
+        - cp
+        args:
+        - -f
+        - /flannel
+        - /opt/cni/bin/flannel
+        volumeMounts:
+        - name: cni-plugin
+          mountPath: /opt/cni/bin
+      - name: install-cni
+       #image: flannelcni/flannel:v0.18.1 for ppc64le and mips64le (dockerhub limitations may apply)
+        image: rancher/mirrored-flannelcni-flannel:v0.18.1
+        command:
+        - cp
+        args:
+        - -f
+        - /etc/kube-flannel/cni-conf.json
+        - /etc/cni/net.d/10-flannel.conflist
+        volumeMounts:
+        - name: cni
+          mountPath: /etc/cni/net.d
+        - name: flannel-cfg
+          mountPath: /etc/kube-flannel/
+      containers:
+      - name: kube-flannel
+       #image: flannelcni/flannel:v0.18.1 for ppc64le and mips64le (dockerhub limitations may apply)
+        image: rancher/mirrored-flannelcni-flannel:v0.18.1
+        command:
+        - /opt/bin/flanneld
+        args:
+        - --ip-masq
+        - --kube-subnet-mgr
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "50Mi"
+          limits:
+            cpu: "100m"
+            memory: "50Mi"
+        securityContext:
+          privileged: false
+          capabilities:
+            add: ["NET_ADMIN", "NET_RAW"]
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: EVENT_QUEUE_DEPTH
+          value: "5000"
+        volumeMounts:
+        - name: run
+          mountPath: /run/flannel
+        - name: flannel-cfg
+          mountPath: /etc/kube-flannel/
+        - name: xtables-lock
+          mountPath: /run/xtables.lock
+      volumes:
+      - name: run
+        hostPath:
+          path: /run/flannel
+      - name: cni-plugin
+        hostPath:
+          path: /opt/cni/bin
+      - name: cni
+        hostPath:
+          path: /etc/cni/net.d
+      - name: flannel-cfg
+        configMap:
+          name: kube-flannel-cfg
+      - name: xtables-lock
+        hostPath:
+          path: /run/xtables.lock
+          type: FileOrCreate
+```
+
+```bash
+# kubectl apply -f /usr/local/kube-flannel.yml
+namespace/kube-flannel created
+clusterrole.rbac.authorization.k8s.io/flannel created
+clusterrolebinding.rbac.authorization.k8s.io/flannel created
+serviceaccount/flannel created
+configmap/kube-flannel-cfg created
+daemonset.apps/kube-flannel-ds created
+```
+
+### 查看节点状态
+
+节点的正常状态如下:
+
+- ```control-plane``` 状态为 ```Ready```
+- 命名空间下的各个 ```pod``` 状态为 ```Running```
+
+```bash
+# kubectl get nodes
+NAME                STATUS   ROLES           AGE     VERSION
+centos-docker-163   Ready    control-plane   4m41s   v1.24.3
+
+# kubectl get pods --all-namespaces
+NAMESPACE      NAME                                        READY   STATUS              RESTARTS   AGE
+kube-flannel   kube-flannel-ds-dlz87                       1/1     Running             0          6s
+kube-system    coredns-74586cf9b6-lvf9f                    0/1     ContainerCreating   0          2m27s
+kube-system    coredns-74586cf9b6-xpmz8                    0/1     ContainerCreating   0          2m27s
+kube-system    etcd-centos-docker-163                      1/1     Running             2          2m41s
+kube-system    kube-apiserver-centos-docker-163            1/1     Running             2          2m41s
+kube-system    kube-controller-manager-centos-docker-163   1/1     Running             0          2m44s
+kube-system    kube-proxy-ns6rn                            1/1     Running             0          2m27s
+kube-system    kube-scheduler-centos-docker-163            1/1     Running             2          2m41s
+```
