@@ -7,9 +7,9 @@
 - 准备三台物理机
     |物理机IP|物理机HostName|角色|
     |--|--|--|
-    |192.168.5.163|centos-docker-163|manager|
-    |192.168.5.164|centos-docker-164|worker|
-    |192.168.5.165|centos-docker-165|worker|
+    |192.168.5.163|centos-docker-163|control-plane(manager)|
+    |192.168.5.164|centos-docker-164|<none>(worker)|
+    |192.168.5.165|centos-docker-165|<none>(worker)|
 
 - 三台物理机都需要安装
    - ```Container Runtimes```
@@ -191,8 +191,6 @@ WantedBy=multi-user.target
 cc0c0a312d5fd       3a5aa3a515f5d       3 minutes ago       Running             kube-scheduler            0                   57ea5834c6733       kube-scheduler-centos-docker-163
 29370743dd9b4       d521dd763e2e3       3 minutes ago       Running             kube-apiserver            0                   dbf69505210f0       kube-apiserver-centos-docker-163
 8419adae1fc6b       586c112956dfc       3 minutes ago       Running             kube-controller-manager   0                   ef93d9aef0c2f       kube-controller-manager-centos-docker-163
-
-
 ```
 
 ## 安装 kubernetes
@@ -228,16 +226,28 @@ gpgkey=https://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg https://mirrors
 
 # systemctl status kubelet
 ● kubelet.service - kubelet: The Kubernetes Node Agent
-   Loaded: loaded (/usr/lib/systemd/system/kubelet.service; disabled; vendor preset: disabled)
+   Loaded: loaded (/usr/lib/systemd/system/kubelet.service; enabled; vendor preset: disabled)
   Drop-In: /usr/lib/systemd/system/kubelet.service.d
            └─10-kubeadm.conf
-   Active: activating (auto-restart) (Result: exit-code) since Tue 2022-01-25 11:29:18 CST; 2s ago
+   Active: active (running) since 一 2022-07-18 18:23:17 CST; 14h ago
      Docs: https://kubernetes.io/docs/
-  Process: 7438 ExecStart=/usr/bin/kubelet $KUBELET_KUBECONFIG_ARGS $KUBELET_CONFIG_ARGS $KUBELET_KUBEADM_ARGS $KUBELET_EXTRA_ARGS (code=exited, status=1/FAILURE)
- Main PID: 7438 (code=exited, status=1/FAILURE)
+ Main PID: 25434 (kubelet)
+    Tasks: 17
+   Memory: 40.7M
+   CGroup: /system.slice/kubelet.service
+           └─25434 /usr/bin/kubelet --bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --kubeconfig=/etc...
 
-Jan 25 11:29:18 node1 systemd[1]: Unit kubelet.service entered failed state.
-Jan 25 11:29:18 node1 systemd[1]: kubelet.service failed.
+7月 18 18:25:47 centos-docker-163 kubelet[25434]: E0718 18:25:47.284750   25434 kuberuntime_sandbox.go:70] "Failed...
+7月 18 18:25:47 centos-docker-163 kubelet[25434]: E0718 18:25:47.284776   25434 kuberuntime_manager.go:815] "Creat...
+7月 18 18:25:47 centos-docker-163 kubelet[25434]: E0718 18:25:47.284888   25434 pod_workers.go:951] "Error syn...8_ku
+7月 18 18:25:53 centos-docker-163 kubelet[25434]: I0718 18:25:53.591641   25434 topology_manager.go:200] "Topo...ler"
+7月 18 18:25:53 centos-docker-163 kubelet[25434]: I0718 18:25:53.636494   25434 reconciler.go:270] "operationExecu...
+7月 18 18:25:53 centos-docker-163 kubelet[25434]: I0718 18:25:53.636561   25434 reconciler.go:270] "operationExecu...
+7月 18 18:25:53 centos-docker-163 kubelet[25434]: I0718 18:25:53.636607   25434 reconciler.go:270] "operationExecu...
+7月 18 18:25:53 centos-docker-163 kubelet[25434]: I0718 18:25:53.636648   25434 reconciler.go:270] "operationExecu...
+7月 18 18:25:53 centos-docker-163 kubelet[25434]: I0718 18:25:53.636688   25434 reconciler.go:270] "operationExecu...
+7月 18 18:25:53 centos-docker-163 kubelet[25434]: I0718 18:25:53.636729   25434 reconciler.go:270] "operationExecu...
+Hint: Some lines were ellipsized, use -l to show in full.
 
 # rpm -ql kubelet
 /etc/kubernetes/manifests
@@ -259,6 +269,8 @@ Jan 25 11:29:18 node1 systemd[1]: kubelet.service failed.
 参数说明:
 
 - --control-plane-endpoint: master 主机的 IP 地址
+
+- --pod-network-cidr=10.244.0.0/16: 集群的cidr，可以配置为 Flannel 网络模式: ```10.244.0.0/16```
 
 - --kubernetes-version: 当前安装的 kubernetes 的版本号，可以不写，默认会自动获取版本
 
@@ -626,6 +638,10 @@ daemonset.apps/kube-flannel-ds created
 
 - ```control-plane``` 状态为 ```Ready```
 - 命名空间下的各个 ```pod``` 状态为 ```Running```
+   
+   当有节点加入集群之后，```ContainerCreating``` 会变为 ```Running```
+
+在管理节点 192.168.5.163 查看节点状态:
 
 ```bash
 # kubectl get nodes
@@ -643,3 +659,100 @@ kube-system    kube-controller-manager-centos-docker-163   1/1     Running      
 kube-system    kube-proxy-ns6rn                            1/1     Running             0          2m27s
 kube-system    kube-scheduler-centos-docker-163            1/1     Running             2          2m41s
 ```
+
+### 添加新节点到集群
+
+在 192.168.5.164 上执行以下命令:
+
+```bash
+# kubeadm join 192.168.5.163:6443 --token lc81r0.ts58t03upj136xd9 --discovery-token-ca-cert-hash sha256:af924c26c5b40bf4f7df8a8a396bf7904e592cde8ffc1f8bb1cece01e4f9f352
+[preflight] Running pre-flight checks
+[preflight] Reading configuration from the cluster...
+[preflight] FYI: You can look at this config file with 'kubectl -n kube-system get cm kubeadm-config -o yaml'
+[kubelet-start] Writing kubelet configuration to file "/var/lib/kubelet/config.yaml"
+[kubelet-start] Writing kubelet environment file with flags to file "/var/lib/kubelet/kubeadm-flags.env"
+[kubelet-start] Starting the kubelet
+[kubelet-start] Waiting for the kubelet to perform the TLS Bootstrap...
+
+This node has joined the cluster:
+* Certificate signing request was sent to apiserver and a response was received.
+* The Kubelet was informed of the new secure connection details.
+
+Run 'kubectl get nodes' on the control-plane to see this node join the cluster.
+```
+
+在 192.168.5.165 上执行以下命令:
+
+```bash
+# kubeadm join 192.168.5.163:6443 --token lc81r0.ts58t03upj136xd9 --discovery-token-ca-cert-hash sha256:af924c26c5b40bf4f7df8a8a396bf7904e592cde8ffc1f8bb1cece01e4f9f352
+[preflight] Running pre-flight checks
+[preflight] Reading configuration from the cluster...
+[preflight] FYI: You can look at this config file with 'kubectl -n kube-system get cm kubeadm-config -o yaml'
+[kubelet-start] Writing kubelet configuration to file "/var/lib/kubelet/config.yaml"
+[kubelet-start] Writing kubelet environment file with flags to file "/var/lib/kubelet/kubeadm-flags.env"
+[kubelet-start] Starting the kubelet
+[kubelet-start] Waiting for the kubelet to perform the TLS Bootstrap...
+
+This node has joined the cluster:
+* Certificate signing request was sent to apiserver and a response was received.
+* The Kubelet was informed of the new secure connection details.
+
+Run 'kubectl get nodes' on the control-plane to see this node join the cluster.
+```
+
+在管理节点 192.168.5.163 查看节点状态:
+
+```bash
+# kubectl get nodes
+NAME                STATUS   ROLES           AGE     VERSION
+centos-docker-163   Ready    control-plane   17h     v1.24.3
+centos-docker-164   Ready    <none>          91m     v1.24.3
+centos-docker-165   Ready    <none>          2m25s   v1.24.3
+
+# kubectl get pods --all-namespaces
+NAMESPACE      NAME                                        READY   STATUS    RESTARTS   AGE
+kube-flannel   kube-flannel-ds-dlz87                       1/1     Running   0          17h
+kube-flannel   kube-flannel-ds-jvjxf                       1/1     Running   1          91m
+kube-flannel   kube-flannel-ds-qnpl8                       1/1     Running   0          2m44s
+kube-system    coredns-74586cf9b6-lvf9f                    1/1     Running   0          17h
+kube-system    coredns-74586cf9b6-xpmz8                    1/1     Running   0          17h
+kube-system    etcd-centos-docker-163                      1/1     Running   2          17h
+kube-system    kube-apiserver-centos-docker-163            1/1     Running   2          17h
+kube-system    kube-controller-manager-centos-docker-163   1/1     Running   0          17h
+kube-system    kube-proxy-kdzkc                            1/1     Running   0          2m44s
+kube-system    kube-proxy-nrrn2                            1/1     Running   0          44m
+kube-system    kube-proxy-xl7wm                            1/1     Running   0          44m
+kube-system    kube-scheduler-centos-docker-163            1/1     Running   2          17h
+```
+
+### 配置 ipvs 模式
+
+1. 在```管理节点/工作节点```上查看模式:
+
+   ```bash
+   # curl 127.0.0.1:10249/proxyMode
+   iptables
+   ```
+
+2. 在```管理节点```上开启 ipvs 模式:
+
+   ```bash
+   # kubectl edit cm kube-proxy -n kube-system
+   ```
+
+   ***把 ```mode: ""``` 修改为 ```mode: "ipvs"```***
+
+3. 在```管理节点```上删除当前的 kube-proxy:
+
+   ```bash
+   # kubectl get pod -n kube-system|grep kube-proxy|awk '{system("kubectl delete pod "$1" -n kube-system")}'
+   ```
+
+   ***删除后 ```kube-proxy``` 会自动重新生成，重新生成后即采用 ```ipvs ``` 模式，并且作用于 k8s 集群所有的节点。***
+
+4. 在```管理节点/工作节点```上查看模式:
+
+   ```bash
+   # curl 127.0.0.1:10249/proxyMode
+   ipvs
+   ```
