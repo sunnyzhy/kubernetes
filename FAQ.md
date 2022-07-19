@@ -2,13 +2,25 @@
 
 ## [WARNING Swap]: swap is enabled; production deployments should disable swap unless testing the NodeSwap feature gate of the kubelet
 
-禁用 swap:
+- 临时禁用 swap:
 
-```bash
-# sed -i 's+/dev/mapper/centos-swap+#/dev/mapper/centos-swap+' /etc/fstab
+    ```bash
+    # swapoff -a
 
-# reboot
-```
+    # free -mh
+    ```
+
+    ***```swapon -a``` 开启 swap***
+
+- 永久禁用 swap:
+
+    ```bash
+    # sed -i 's+/dev/mapper/centos-swap+#/dev/mapper/centos-swap+' /etc/fstab
+
+    # reboot
+
+    # free -mh
+    ```
 
 ## [WARNING Hostname]: hostname "xxx" could not be reached
 
