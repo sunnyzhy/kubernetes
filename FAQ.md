@@ -27,7 +27,7 @@
 添加 hostname 映射:
 
 ```bash
-# echo '127.0.0.1   centos-docker-164' >> /etc/hosts
+# echo '127.0.0.1   xxx' >> /etc/hosts
 ```
 
 ## [WARNING Hostname]: hostname "xxx": lookup centos-docker-164 on 202.96.134.133:53: no such host
@@ -35,5 +35,5 @@
 添加 hostname 映射:
 
 ```bash
-# echo '127.0.0.1   centos-docker-164' >> /etc/hosts
+# echo '127.0.0.1   xxx' >> /etc/hosts
 ```
