@@ -1,0 +1,27 @@
+# FAQ
+
+## [WARNING Swap]: swap is enabled; production deployments should disable swap unless testing the NodeSwap feature gate of the kubelet
+
+禁用 swap:
+
+```bash
+# sed -i 's+/dev/mapper/centos-swap+#/dev/mapper/centos-swap+' /etc/fstab
+
+# reboot
+```
+
+## [WARNING Hostname]: hostname "xxx" could not be reached
+
+添加 hostname 映射:
+
+```bash
+# echo '127.0.0.1   centos-docker-164' >> /etc/hosts
+```
+
+## [WARNING Hostname]: hostname "xxx": lookup centos-docker-164 on 202.96.134.133:53: no such host
+
+添加 hostname 映射:
+
+```bash
+# echo '127.0.0.1   centos-docker-164' >> /etc/hosts
+```
