@@ -1,5 +1,7 @@
 # kubernetes 里常见的几种 port 的区别
 
+## 区别
+
 - containerPort: 是 pod 内部容器的端口，在 Pod 和 Deployment 类型的模板里
 
 - port: 是 kubernetes 集群内部访问 service 的端口，通过 ```clusterIP:port``` 可以访问到某个 service，在 Service 类型的模板里
@@ -9,7 +11,7 @@
 - targetPort: 是 kubernetes 集群内部 service 访问 pod 的端口，通过 ```podIP:targetPort``` 可以访问到某个 pod，在 Service 类型的模板里
    ***注: targetPort 映射的端口必须是 containerPort 端口***
 
-示例:
+## 示例
 
 deployment.yaml 配置的内容如下:
 
@@ -172,3 +174,9 @@ TCP  10.111.25.14:80 rr
   -> 10.244.2.10:80               Masq    1      0          0         
   -> 10.244.2.11:80               Masq    1      0          0          
 ```
+
+## 注意事项
+
+1. pod、deployment、service 必须位于同一命名空间下
+2. service 的 selector 必须是在 pod 和 deployment 里定义的标签的 ```key: value```
+3. service 的 targetPort 映射的端口必须是 pod 和 deployment 的 containerPort 端口
