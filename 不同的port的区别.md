@@ -1,4 +1,4 @@
-# kubernetes 里常见的几种 port 的区别
+# kubernetes 里不同的 port 的区别
 
 ## 区别
 
