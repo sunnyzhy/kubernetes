@@ -274,6 +274,8 @@ Hint: Some lines were ellipsized, use -l to show in full.
 
 - --kubernetes-version: 当前安装的 kubernetes 的版本号，可以不写，默认会自动获取版本
 
+- --cri-socket: 容器运行时接口，在初始化集群的时候，会自动获取已安装的容器运行时；可以不写，默认为: ```unix:///var/run/containerd/containerd.sock```
+
 - --image-repository: 镜像地址，可以使用阿里云仓库地址: ```registry.aliyuncs.com/google_containers```
 
 - 其他参数为可选参数
