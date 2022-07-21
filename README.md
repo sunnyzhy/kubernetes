@@ -18,6 +18,8 @@ Download the k8s-\<VERSION\>.tar.gz archive from https://github.com/sunnyzhy/kub
 # cat /etc/containerd/config.toml
 ```
 
+```grpc```'s  address default value is: ```/run/containerd/containerd.sock```
+
 Set ```SystemdCgroup```:
 
 ```bash
@@ -38,10 +40,37 @@ sed -i 's+k8s.gcr.io/pause:3.6+registry.aliyuncs.com/google_containers/pause:3.6
 # cat /usr/local/kubeadm.yaml
 ```
 
+Set CRI:
+
 ```criSocket```'s default value is: ```unix:///var/run/containerd/containerd.sock```
+
+```bash
+sed -i 's+unix:\/\/\/var\/run\/containerd\/containerd.sock+unix:\/\/\/run\/containerd\/containerd.sock+' /usr/local/kubeadm.yaml
+```
 
 Replace image repository ```k8s.gcr.io``` with ```registry.aliyuncs.com/google_containers```:
 
 ```bash
-sed -i 's+k8s.gcr.io/pause:3.6+registry.aliyuncs.com/google_containers/pause:3.6+' /usr/local/kubeadm.yaml
+sed -i 's+k8s.gcr.io+registry.aliyuncs.com\/google_containers+' /usr/local/kubeadm.yaml
+```
+
+## Change CR
+
+### kubelet use containerd
+
+```bash
+# vim /etc/sysconfig/kubelet
+KUBELET_EXTRA_ARGS="--container-runtime=remote --container-runtime-endpoint=unix:///run/containerd/containerd.sock --pod-infra-container-image=registry.aliyuncs.com/google_containers/pause:3.7"
+```
+
+### kubeadm use containerd
+
+```bash
+# kubeadm init --control-plane-endpoint=192.168.5.163 --pod-network-cidr=10.244.0.0/16 --cri-socket=unix:///run/containerd/containerd.sock --image-repository registry.aliyuncs.com/google_containers
+```
+
+or
+
+```bash
+# kubeadm init --control-plane-endpoint=192.168.5.163 --pod-network-cidr=10.244.0.0/16 --config=/usr/local/kubeadm.yaml
 ```
