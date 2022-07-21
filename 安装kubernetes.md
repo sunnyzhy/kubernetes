@@ -256,6 +256,30 @@ Hint: Some lines were ellipsized, use -l to show in full.
 /usr/lib/systemd/system/kubelet.service
 ```
 
+查看 kubelet 详情:
+
+```bash
+# systemctl status kubelet.service -l | grep /usr/bin/kubelet | sed 's/[0-9]\{3,\} \/usr\/bin\/kubelet/ \/usr\/bin\/kubelet/g'
+           └─ /usr/bin/kubelet --bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --kubeconfig=/etc/kubernetes/kubelet.conf --config=/var/lib/kubelet/config.yaml --container-runtime=remote --container-runtime-endpoint=unix:///var/run/containerd/containerd.sock --pod-infra-container-image=registry.aliyuncs.com/google_containers/pause:3.7
+```
+
+由于使用的 CR 是 containerd，所以 kubelet 服务跟 container 相关的参数如下:
+
+- --container-runtime=remote
+
+- --container-runtime-endpoint=unix:///var/run/containerd/containerd.sock
+
+- --pod-infra-container-image=registry.aliyuncs.com/google_containers/pause:3.7
+
+查看 cgroupDriver 详情:
+
+```bash
+# cat /var/lib/kubelet/config.yaml | grep  cgroupDriver
+cgroupDriver: systemd
+```
+
+由于使用的 CR 是 containerd，所以 cgroupDriver 为 ```systemd```
+
 ### 更新缓存
 
 ```bash
