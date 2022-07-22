@@ -1,4 +1,4 @@
-# ingress 示例
+# ingress
 
 ## 前言
 
@@ -202,6 +202,128 @@ IP:           192.168.5.165
 
 ```bash
 # curl k8sdemo.ingress.com
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+```
+
+### HTTPS 访问
+
+#### 生成证书和私钥
+
+```bash
+# mkdir -p /usr/local/k8s/ingress/ca
+
+# cd /usr/local/k8s/ingress/ca
+
+# openssl genrsa -out tls.key 2048
+
+# openssl req -x509 -new -nodes -key tls.key -sha256 -days 3650 -out tls.crt -subj /CN=k8sdemo.ingress.com
+
+# tree /usr/local/k8s/ingress/ca
+/usr/local/k8s/ingress/ca
+├── tls.crt
+└── tls.key
+```
+
+#### 生成 secret
+
+```bash
+# kubectl create secret tls tls-nginx --key tls.key --cert tls.crt -n ns-nginx
+
+# kubectl get secrets -n ns-nginx
+NAME        TYPE                DATA   AGE
+tls-nginx   kubernetes.io/tls   2      32s
+```
+
+#### 部署 Ingress
+
+```bash
+# mkdir -p /usr/local/k8s/ingress
+
+# vim /usr/local/k8s/ingress/ingress.yaml
+```
+
+```yml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  namespace: ns-nginx
+spec:
+  tls:
+  - hosts: 
+    - k8sdemo.ingress.com
+    secretName: tls-nginx
+  rules:
+  - host: k8sdemo.ingress.com
+    http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: nginx-service
+            port:
+              number: 80
+```
+
+```bash
+# kubectl apply -f /usr/local/k8s/ingress/ingress.yaml
+
+# kubectl get ingress -n ns-nginx
+NAME            CLASS    HOSTS                 ADDRESS          PORTS     AGE
+nginx-ingress   <none>   k8sdemo.ingress.com   10.109.253.191   80, 443   175m
+
+# kubectl describe ingress nginx-ingress -n ns-nginx
+Name:             nginx-ingress
+Labels:           <none>
+Namespace:        ns-nginx
+Address:          10.109.253.191
+Ingress Class:    <none>
+Default backend:  <default>
+TLS:
+  tls-nginx terminates k8sdemo.ingress.com
+Rules:
+  Host                 Path  Backends
+  ----                 ----  --------
+  k8sdemo.ingress.com  
+                       /   nginx-service:80 (10.244.1.26:80,10.244.1.27:80,10.244.2.18:80)
+Annotations:           kubernetes.io/ingress.class: nginx
+Events:
+  Type    Reason  Age                 From                      Message
+  ----    ------  ----                ----                      -------
+  Normal  Sync    52s (x3 over 175m)  nginx-ingress-controller  Scheduled for sync
+```
+
+#### HTTPS 访问
+
+在配置了 hosts 域名映射的在任一主机上访问:
+
+```bash
+# curl -k https://k8sdemo.ingress.com
 <!DOCTYPE html>
 <html>
 <head>
