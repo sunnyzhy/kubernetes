@@ -237,7 +237,7 @@ metadata:
 spec:
   containers:
   - name: test-pod
-    image: gcr.io/google_containers/busybox:1.24
+    image: registry.aliyuncs.com/google_containers/busybox:1.24
     command:
       - "/bin/sh"
     args:
@@ -253,10 +253,56 @@ spec:
         claimName: test-claim
 ```
 
-测试:
+测试 PVC:
 
 ```bash
-# kubectl apply -f /usr/local/nfs/test-claim.yaml -f /usr/local/nfs/test-pod.yaml
+# kubectl apply -f /usr/local/nfs/test-claim.yaml
+```
+
+查看 PVC,PV 状态:
+
+```bash
+# kubectl get pvc,pv -n iot
+NAME                               STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS          AGE
+persistentvolumeclaim/test-claim   Bound    pvc-717630cd-1219-4bbc-a54f-4282167f9f1b   1Mi        RWX            managed-nfs-storage   25m
+
+NAME                                                        CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM            STORAGECLASS          REASON   AGE
+persistentvolume/pvc-717630cd-1219-4bbc-a54f-4282167f9f1b   1Mi        RWX            Delete           Bound    iot/test-claim   managed-nfs-storage            25m
+```
+
+查看 NFS Server 文件:
+
+```bash
+# tree /nfs/data
+/nfs/data
+└── iot-test-claim-pvc-717630cd-1219-4bbc-a54f-4282167f9f1b
+
+1 directory, 0 files
+```
+
+测试 Pod:
+
+```bash
+# kubectl apply -f /usr/local/nfs/test-pod.yaml
+```
+
+查看 test-pod:
+
+```bash
+# kubectl get pods test-pod -n iot
+NAME       READY   STATUS      RESTARTS   AGE
+test-pod   0/1     Completed   0          5m8s
+```
+
+查看 NFS Server 文件:
+
+```bash
+# tree /nfs/data
+/nfs/data
+└── iot-test-claim-pvc-717630cd-1219-4bbc-a54f-4282167f9f1b
+    └── SUCCESS
+
+1 directory, 1 file
 ```
 
 删除:
