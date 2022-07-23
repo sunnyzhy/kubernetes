@@ -352,7 +352,7 @@ E0723 09:50:00.283724       1 controller.go:1004] provision "iot/test-claim" cla
 
     但是在 ```1.21``` 以上的 k8s 版本中已经移除了这个属性设置。如果依然要添加该属性，会造成 kube-apiserver 启动失败。
 
-2. 正确的解决方法是在 deployment.yaml 里使用其他镜像，比如: ```gmoney23/nfs-client-provisioner:latest```
+2. 正确的解决方法是在 deployment.yaml 里使用其他镜像，比如: 用 ```gmoney23/nfs-client-provisioner:latest``` 替换默认的镜像 ```quay.io/external_storage/nfs-client-provisioner:latest```
 
     ```yml
     apiVersion: apps/v1
