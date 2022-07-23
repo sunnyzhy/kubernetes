@@ -196,7 +196,7 @@ spec:
 # kubectl apply -f /usr/local/nfs/deployment.yaml
 ```
 
-不要使用源文件 deployment.yaml 里提供的镜像 ```quay.io/external_storage/nfs-client-provisioner:latest```，会报 pod 异常 ```selfLink was empty, can't make reference```。需要使用其他镜像，比如: ```gmoney23/nfs-client-provisioner:latest```，详情请参考 ```FAQ # PVC 一直处于 pending 状态```
+***不要使用源文件 deployment.yaml 里提供的镜像 ```quay.io/external_storage/nfs-client-provisioner:latest```，会报 pod 异常 ```selfLink was empty, can't make reference```。需要使用其他镜像，比如: ```gmoney23/nfs-client-provisioner:latest```，详情请参考 ```FAQ # PVC 一直处于 pending 状态```***
 
 ### 测试
 
@@ -304,7 +304,7 @@ E0723 09:50:00.283724       1 controller.go:1004] provision "iot/test-claim" cla
         - --feature-gates=RemoveSelfLink=false # 增加
     ```
 
-    但是在 ```1.21`` 以上的 k8s 版本中已经移除了这个属性设置。如果依然要添加该属性，会造成 kube-apiserver 启动失败。
+    但是在 ```1.21``` 以上的 k8s 版本中已经移除了这个属性设置。如果依然要添加该属性，会造成 kube-apiserver 启动失败。
 
 2. 正确的解决方法是在 deployment.yaml 里使用其他镜像，比如: ```gmoney23/nfs-client-provisioner:latest```
 
