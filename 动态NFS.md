@@ -174,7 +174,7 @@ spec:
       serviceAccountName: nfs-client-provisioner
       containers:
         - name: nfs-client-provisioner
-          image: quay.io/external_storage/nfs-client-provisioner:latest
+          image: gmoney23/nfs-client-provisioner:latest
           volumeMounts:
             - name: nfs-client-root
               mountPath: /persistentvolumes
@@ -195,6 +195,8 @@ spec:
 ```bash
 # kubectl apply -f /usr/local/nfs/deployment.yaml
 ```
+
+不要使用源文件 deployment.yaml 里提供的镜像 ```quay.io/external_storage/nfs-client-provisioner:latest```，会报 pod 异常 ```selfLink was empty, can't make reference```。需要使用其他镜像，比如: ```gmoney23/nfs-client-provisioner:latest```，详情请参考 ```FAQ # PVC 一直处于 pending 状态```
 
 ### 测试
 
@@ -262,3 +264,61 @@ spec:
 ```bash
 # kubectl delete -f /usr/local/nfs/test-claim.yaml -f /usr/local/nfs/test-pod.yaml
 ```
+
+## FAQ
+
+### PVC 一直处于 pending 状态
+
+pvc 异常 ```waiting for a volume to be created, either by external provisioner "fuseim.pri/ifs" or manually created by system administrator```:
+
+```bash
+# kubectl describe pvc test-claim -n iot
+Events:
+  Type    Reason                Age                     From                         Message
+  ----    ------                ----                    ----                         -------
+  Normal  ExternalProvisioning  7m49s (x5321 over 22h)  persistentvolume-controller  waiting for a volume to be created, either by external provisioner "fuseim.pri/ifs" or manually created by system administrator
+```
+
+pod 异常 ```selfLink was empty, can't make reference```:
+
+```bash
+# kubectl logs nfs-client-provisioner-58548f6578-4jngl -n iot
+I0723 09:50:00.277312       1 controller.go:987] provision "iot/test-claim" class "managed-nfs-storage": started
+E0723 09:50:00.283724       1 controller.go:1004] provision "iot/test-claim" class "managed-nfs-storage": unexpected error getting claim reference: selfLink was empty, can't make reference
+```
+
+注意事项:
+
+1. 在 ```1.20 ~ 1.21``` 的 k8s 版本中，可以在 kube-apiserver.yaml 文件里增加以下属性解决：
+
+    ```bash
+    # vim /etc/kubernetes/manifests/kube-apiserver.yaml
+    ```
+
+    ```yml
+    spec:
+      containers:
+      - command:
+        - kube-apiserver
+        ...
+        - --feature-gates=RemoveSelfLink=false # 增加
+    ```
+
+    但是在 ```1.21`` 以上的 k8s 版本中已经移除了这个属性设置。如果依然要添加该属性，会造成 kube-apiserver 启动失败。
+
+2. 正确的解决方法是在 deployment.yaml 里使用其他镜像，比如: ```gmoney23/nfs-client-provisioner:latest```
+
+    ```yml
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: nfs-client-provisioner
+      ...
+    spec:
+      ...
+        spec:
+          serviceAccountName: nfs-client-provisioner
+          containers:
+            - name: nfs-client-provisioner
+              image: gmoney23/nfs-client-provisioner:latest
+    ```
