@@ -1,10 +1,30 @@
 # 动态 NFS
 
-[nfs-client](https://github.com/kubernetes-retired/external-storage 'nfs-client')
+## 部署 NFS 集群
 
-## 创建 NFS 存储
+- ***NFS 默认的配置文件: ```/etc/exports```***
 
-***```/etc/exports``` 文件就是 NFS 默认的配置文件***
+- 准备三台物理机:
+
+    |物理机IP|物理机HostName|角色|
+    |--|--|--|
+    |192.168.5.163|centos-docker-163|manager|
+    |192.168.5.164|centos-docker-164|worker|
+    |192.168.5.165|centos-docker-165|worker|
+
+### 安装 NFS 组件
+
+在三台物理机上分别执行以下命令:
+
+```bash
+# yum install -y nfs-utils rpcbind
+```
+
+linux 系统默认安装的有 NFS 组件，可以忽略该步骤。
+
+### 配置共享文件夹
+
+在物理机 192.168.5.163(manager) 上执行以下命令:
 
 ```bash
 # mkdir -p /nfs/data
@@ -32,7 +52,67 @@ Export list for 192.168.5.163:
 /nfs/data *
 ```
 
+### 挂载集群节点
+
+在物理机 192.168.5.164(worker) 和 192.168.5.165(worker) 上分别执行以下命令:
+
+```bash
+# mkdir -p /nfs/data
+
+# chmod -R 777 /nfs/data
+
+# mount 192.168.5.163:/nfs/data /nfs/data
+```
+
+### 测试是否挂载成功
+
+在物理机 192.168.5.163(manager) 上执行以下命令:
+
+```bash
+# touch /nfs/data/1.log
+
+# tree /nfs/data/
+/nfs/data/
+└── 1.log
+
+0 directory, 1 files
+```
+
+在物理机 192.168.5.164(worker) 和 192.168.5.165(worker) 上分别执行以下命令:
+
+```bash
+# tree /nfs/data/
+/nfs/data/
+└── 1.log
+
+0 directory, 1 files
+```
+
+在物理机 192.168.5.164(worker) 上执行以下命令:
+
+```bash
+# touch /nfs/data/2.data
+
+# tree /nfs/data/
+├── 1.log
+└── 2.data
+
+0 directories, 2 files
+```
+
+在物理机 192.168.5.163(manager) 和 192.168.5.165(worker) 上分别执行以下命令:
+
+```bash
+# tree /nfs/data/
+├── 1.log
+└── 2.data
+
+0 directories, 2 files
+```
+
 ## 创建动态 PV
+
+[nfs-client](https://github.com/kubernetes-retired/external-storage 'nfs-client')
 
 ### 创建命名空间
 
@@ -294,7 +374,7 @@ NAME       READY   STATUS      RESTARTS   AGE
 test-pod   0/1     Completed   0          5m8s
 ```
 
-查看 NFS Server 文件:
+查看 NFS Server 文件，由 test-pod 创建的 ```SUCCESS``` 文件已挂载到了 ```/nfs/data``` 目录:
 
 ```bash
 # tree /nfs/data
