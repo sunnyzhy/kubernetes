@@ -10,7 +10,7 @@
 # vim /usr/local/k8s/ingress-nginx/deploy.yaml
 ```
 
-由于 ```https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.3.0/deploy/static/provider/cloud/deploy.yaml``` 无法下载，所以贴出 ```deploy/static/provider/cloud/deploy.yaml```:
+```deploy/static/provider/cloud/deploy.yaml``` 源文件:
 
 ```yml
 apiVersion: v1
