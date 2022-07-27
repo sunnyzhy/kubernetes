@@ -79,7 +79,7 @@ bin/ctr
 # vim /usr/local/lib/systemd/system/containerd.service
 ```
 
-由于 ```raw#containerd.service``` 无法下载，所以贴出 ```containerd.service``` 源文件内容:
+```containerd.service``` 源文件:
 
 ```service
 # Copyright The containerd Authors.
@@ -439,7 +439,7 @@ README.md
 # vim /usr/local/kube-flannel.yml
 ```
 
-由于 ```raw#kube-flannel.yml``` 无法下载，所以贴出 ```kube-flannel.yml``` 源文件内容:
+```kube-flannel.yml``` 源文件:
 
 ```yml
 ---
