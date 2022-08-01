@@ -37,3 +37,11 @@
 ```bash
 # echo '127.0.0.1   xxx' >> /etc/hosts
 ```
+
+## INSTALLATION FAILED: cannot re-use a name that is still in use
+
+```bash
+# helm ls --all-namespaces
+
+# helm uninstall <NAME>
+```
