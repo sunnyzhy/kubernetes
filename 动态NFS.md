@@ -114,6 +114,14 @@ Export list for 192.168.5.163:
 
 [nfs-client](https://github.com/kubernetes-retired/external-storage 'nfs-client')
 
+注:
+
+- ```rbac.yaml``` 源文件: [rbac.yaml](./raw-yaml/nfs/rbac.yaml 'rbac.yaml')
+- ```class.yaml``` 源文件: [class.yaml](./raw-yaml/nfs/class.yaml 'class.yaml')
+- ```deployment.yaml``` 源文件: [deployment.yaml](./raw-yaml/nfs/deployment.yaml 'deployment.yaml')
+- ```test-claim.yaml``` 源文件: [test-claim.yaml](./raw-yaml/nfs/test-claim.yaml 'test-claim.yaml')
+- ```test-pod.yaml``` 源文件: [test-pod.yaml](./raw-yaml/nfs/test-pod.yaml 'test-pod.yaml')
+
 ### 创建命名空间
 
 ```bash
