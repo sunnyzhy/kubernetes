@@ -126,6 +126,10 @@ Export list for 192.168.5.163:
 # helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
 
 # helm repo update
+
+# helm search repo nfs-subdir-external-provisioner
+NAME                                              	CHART VERSION	APP VERSION	DESCRIPTION                                       
+nfs-subdir-external-provisioner/nfs-subdir-exte...	4.0.16       	4.0.2      	nfs-subdir-external-provisioner is an automatic...
 ```
 
 ### 拉取 chart
@@ -176,12 +180,26 @@ Export list for 192.168.5.163:
 
 ### 部署
 
-```bash
-# helm install nfs-subdir-external-provisioner /usr/local/k8s/nfs-client-provisioner/nfs-subdir-external-provisioner-4.0.16.tgz  \
->     --set nfs.server=192.168.5.163 \
->     --set nfs.path=/nfs/data \
->     --namespace iot
+- 部署方式 1:
 
+    ```bash
+    # helm install nfs-subdir-external-provisioner /usr/local/k8s/nfs-client-provisioner/nfs-subdir-external-provisioner-4.0.16.tgz  \
+    >     --set nfs.server=192.168.5.163 \
+    >     --set nfs.path=/nfs/data \
+    >     --namespace iot
+    ```
+
+- 部署方式 2:
+
+    ```bash
+    # sed -i -e 's+server:+server: 192.168.5.163+' -e 's+path: /nfs-storage+path: /nfs/data+' /usr/local/k8s/nfs-client-provisioner/nfs-subdir-external-provisioner/values.yaml 
+
+    # helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner -f /usr/local/k8s/nfs-client-provisioner/nfs-subdir-external-provisioner/values.yaml  -n iot
+    ```
+
+查看 deployment,pod:
+
+```bash
 # kubectl get deployment,pod -n iot
 NAME                                              READY   UP-TO-DATE   AVAILABLE   AGE
 deployment.apps/nfs-subdir-external-provisioner   1/1     1            1           7m31s
