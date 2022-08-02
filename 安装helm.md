@@ -82,9 +82,9 @@ bitnami/mariadb-galera       	7.3.7        	10.6.8     	MariaDB Galera is a mult
 ## 卸载 release
 
 ```bash
-# helm list
+# helm list -n <NAMESPACE>
 
-# helm uninstall <NAME>
+# helm uninstall <NAME> -n <NAMESPACE>
 ```
 
 ## 自定义 chart
