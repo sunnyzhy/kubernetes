@@ -194,7 +194,7 @@ nfs-subdir-external-provisioner/nfs-subdir-exte...	4.0.16       	4.0.2      	nfs
     ```bash
     # sed -i -e 's+server:+server: 192.168.5.163+' -e 's+path: /nfs-storage+path: /nfs/data+' /usr/local/k8s/nfs-client-provisioner/nfs-subdir-external-provisioner/values.yaml 
 
-    # helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner -f /usr/local/k8s/nfs-client-provisioner/nfs-subdir-external-provisioner/values.yaml  -n iot
+    # helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner -f /usr/local/k8s/nfs-client-provisioner/nfs-subdir-external-provisioner/values.yaml -n iot
     ```
 
 查看 deployment,pod:
