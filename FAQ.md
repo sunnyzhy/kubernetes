@@ -45,3 +45,23 @@
 
 # helm uninstall <NAME>
 ```
+
+## failure: repodata/repomd.xml from kubernetes: [Errno 256] No more mirrors to try.
+
+报错详情:
+
+```
+https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64/repodata/repomd.xml: [Errno -1] repomd.xml signature could not be verified for kubernetes
+```
+
+修改 ```repo_gpgcheck=0```:
+
+```bash
+# sed -i 's+repo_gpgcheck=1+repo_gpgcheck=0+' /etc/yum.repos.d/kubernetes.repo
+```
+
+## 没有可用软件包 xx。
+
+```bash
+# yum install -y epel-release
+```
