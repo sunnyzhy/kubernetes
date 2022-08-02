@@ -194,7 +194,9 @@ redis-cluster-headless   ClusterIP      None             <none>                 
 
 ```bash
 # kubectl exec -it redis-cluster-0 -n iot -- /bin/sh
+
 $ redis-cli
+
 127.0.0.1:6379> cluster nodes
 d03b29ecdf9072492d79f9aa102088544fac86f4 10.244.1.116:6379@16379 slave 033ebb2a5953959792c10e9c6c42cb14dc282376 0 1659424690701 2 connected
 033ebb2a5953959792c10e9c6c42cb14dc282376 10.244.2.96:6379@16379 master - 0 1659424690000 2 connected 5461-10922
