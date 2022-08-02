@@ -78,3 +78,11 @@ aliyun/mariadb               	2.1.6        	10.1.31    	Fast, reliable, scalable
 bitnami/mariadb              	11.1.2       	10.6.8     	MariaDB is an open source, community-developed ...
 bitnami/mariadb-galera       	7.3.7        	10.6.8     	MariaDB Galera is a multi-primary database clus...
 ```
+
+## 卸载 release
+
+```bash
+# helm list
+
+# helm uninstall <NAME>
+```
