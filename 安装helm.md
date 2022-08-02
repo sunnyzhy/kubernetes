@@ -86,3 +86,29 @@ bitnami/mariadb-galera       	7.3.7        	10.6.8     	MariaDB Galera is a mult
 
 # helm uninstall <NAME>
 ```
+
+## 自定义 chart
+
+```bash
+# mkdir -p /usr/local/k8s/my-chart
+
+# helm create /usr/local/k8s/my-chart/nginx
+
+# tree /usr/local/k8s/my-chart/nginx
+/usr/local/k8s/my-chart/nginx
+├── charts
+├── Chart.yaml
+├── templates
+│   ├── deployment.yaml
+│   ├── _helpers.tpl
+│   ├── hpa.yaml
+│   ├── ingress.yaml
+│   ├── NOTES.txt
+│   ├── serviceaccount.yaml
+│   ├── service.yaml
+│   └── tests
+│       └── test-connection.yaml
+└── values.yaml
+
+3 directories, 10 files
+```
