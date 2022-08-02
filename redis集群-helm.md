@@ -164,12 +164,12 @@ redis-cli -c -h redis-cluster -a $REDIS_PASSWORD
 redis-cluster   6/6     3m39s
 
 # kubectl get pod -n iot -o wide | grep redis
-redis-cluster-0                                    1/1     Running     1 (23m ago)     24m     10.244.1.114   centos-docker-164   <none>           <none>
-redis-cluster-1                                    1/1     Running     1 (24m ago)     24m     10.244.2.96    centos-docker-165   <none>           <none>
-redis-cluster-2                                    1/1     Running     1 (23m ago)     24m     10.244.1.115   centos-docker-164   <none>           <none>
-redis-cluster-3                                    1/1     Running     1 (23m ago)     24m     10.244.2.98    centos-docker-165   <none>           <none>
-redis-cluster-4                                    1/1     Running     1 (23m ago)     24m     10.244.2.97    centos-docker-165   <none>           <none>
-redis-cluster-5                                    1/1     Running     1 (23m ago)     24m     10.244.1.116   centos-docker-164   <none>           <none>
+redis-cluster-0                                    1/1     Running     1 (4m ago)     5m     10.244.1.114   centos-docker-164   <none>           <none>
+redis-cluster-1                                    1/1     Running     1 (4m ago)     5m     10.244.2.96    centos-docker-165   <none>           <none>
+redis-cluster-2                                    1/1     Running     1 (4m ago)     5m     10.244.1.115   centos-docker-164   <none>           <none>
+redis-cluster-3                                    1/1     Running     1 (4m ago)     5m     10.244.2.98    centos-docker-165   <none>           <none>
+redis-cluster-4                                    1/1     Running     1 (4m ago)     5m     10.244.2.97    centos-docker-165   <none>           <none>
+redis-cluster-5                                    1/1     Running     1 (4m ago)     5m     10.244.1.116   centos-docker-164   <none>           <none>
 
 # kubectl get pvc,pv -n iot | grep redis
 persistentvolumeclaim/redis-data-redis-cluster-0   Bound    pvc-5b66c752-024b-4521-8df4-b326aec40c56   8Gi        RWO            nfs-client     5m2s
