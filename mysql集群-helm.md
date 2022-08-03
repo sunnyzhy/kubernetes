@@ -1,7 +1,5 @@
 # mysql 集群 - helm
 
-[mysql-operator](https://dev.mysql.com/doc/mysql-operator/en/ 'mysql-operator')
-
 ## 前言
 
 - 准备三台物理机
