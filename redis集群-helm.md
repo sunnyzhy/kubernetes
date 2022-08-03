@@ -202,7 +202,7 @@ nameserver 10.96.0.10
 options ndots:5
 ```
 
-通过 nslookup 命令解析 headless 服务对应的 pod IP:
+通过 ```nslookup``` 命令解析 headless 服务对应的 pod IP:
 
 ```bash
 # nslookup redis-cluster-headless.iot.svc.cluster.local $(kubectl get svc -n kube-system | grep 'kube-dns' | awk '{print $3}')
@@ -223,7 +223,7 @@ Name:	redis-cluster-headless.iot.svc.cluster.local
 Address: 10.244.1.115
 ```
 
-通过 dig 命令解析 headless 服务对应的 pod IP:
+通过 ```dig``` 命令解析 headless 服务对应的 pod IP:
 
 ```bash
 # dig redis-cluster-headless.iot.svc.cluster.local @$(kubectl get svc -n kube-system | grep 'kube-dns' | awk '{print $3}') +nocomments +noquestion +noauthority +noadditional +nostats
