@@ -1,6 +1,8 @@
 # 解析 headless 服务
 
-## 查找 kube-dns 在集群内部的 CLUSTER-IP
+## 获取 kubernetes 集群中的 dns 地址
+
+获取 kubernetes 集群中的 dns 地址，即获取 kube-dns 在集群内部的 CLUSTER-IP:
 
 ```bash
 kubectl get svc -n kube-system
