@@ -190,6 +190,66 @@ redis-cluster            ClusterIP      10.107.235.251   <none>                 
 redis-cluster-headless   ClusterIP      None             <none>                                6379/TCP,16379/TCP   5m58s
 ```
 
+### 集群内部解析 headless 服务
+
+查询 pod 的域名:
+
+```bash
+# kubectl exec -it redis-cluster-0 -n iot -- /bin/sh
+$ cat /etc/resolv.conf
+search iot.svc.cluster.local svc.cluster.local cluster.local
+nameserver 10.96.0.10
+options ndots:5
+```
+
+通过 nslookup 命令解析 headless 服务对应的 pod IP:
+
+```bash
+# nslookup redis-cluster-headless.iot.svc.cluster.local $(kubectl get svc -n kube-system | grep 'kube-dns' | awk '{print $3}')
+Server:		10.96.0.10
+Address:	10.96.0.10#53
+
+Name:	redis-cluster-headless.iot.svc.cluster.local
+Address: 10.244.2.98
+Name:	redis-cluster-headless.iot.svc.cluster.local
+Address: 10.244.2.97
+Name:	redis-cluster-headless.iot.svc.cluster.local
+Address: 10.244.1.114
+Name:	redis-cluster-headless.iot.svc.cluster.local
+Address: 10.244.2.96
+Name:	redis-cluster-headless.iot.svc.cluster.local
+Address: 10.244.1.116
+Name:	redis-cluster-headless.iot.svc.cluster.local
+Address: 10.244.1.115
+```
+
+通过 dig 命令解析 headless 服务对应的 pod IP:
+
+```bash
+# dig redis-cluster-headless.iot.svc.cluster.local @$(kubectl get svc -n kube-system | grep 'kube-dns' | awk '{print $3}') +nocomments +noquestion +noauthority +noadditional +nostats
+
+; <<>> DiG 9.11.4-P2-RedHat-9.11.4-26.P2.el7 <<>> redis-cluster-headless.iot.svc.cluster.local @10.96.0.10 +nocomments +noquestion +noauthority +noadditional +nostats
+;; global options: +cmd
+redis-cluster-headless.iot.svc.cluster.local. 14 IN A 10.244.2.97
+redis-cluster-headless.iot.svc.cluster.local. 14 IN A 10.244.1.114
+redis-cluster-headless.iot.svc.cluster.local. 14 IN A 10.244.2.96
+redis-cluster-headless.iot.svc.cluster.local. 14 IN A 10.244.1.116
+redis-cluster-headless.iot.svc.cluster.local. 14 IN A 10.244.2.98
+redis-cluster-headless.iot.svc.cluster.local. 14 IN A 10.244.1.115
+```
+
+解析出来的 pod IP 对应各个 pod 在集群内部分配的 ip:
+
+```bash
+# kubectl get pods -l app.kubernetes.io/instance=redis-cluster -l app.kubernetes.io/name=redis-cluster -n iot -o jsonpath='{range .items[*]}{.status.podIP}{"\n"}{end}'
+10.244.1.114
+10.244.2.96
+10.244.1.115
+10.244.2.98
+10.244.2.97
+10.244.1.116
+``
+
 ## 查看 redis 集群
 
 ```bash
@@ -216,7 +276,7 @@ ee5fb9519167d2b67599a656b197f67080af4114 10.244.2.97:6379@16379 slave 9eda9611e4
 apiVersion: v1
 kind: Service
 metadata:
-  name: redis-service
+  name: redis-cluster-service
   namespace: iot
 spec:
   selector:
@@ -233,9 +293,9 @@ spec:
 ```bash
 # kubectl apply -f /usr/local/k8s/redis/service.yaml
 
-# kubectl get svc redis-service -n iot
-NAME            TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
-redis-service   NodePort   10.103.184.11   <none>        6379:30379/TCP   20s
+# kubectl get svc redis-cluster-service -n iot
+NAME                    TYPE       CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+redis-cluster-service   NodePort   10.108.226.8   <none>        6379:30379/TCP   12s
 ```
 
 外部服务器连接 redis 集群:
