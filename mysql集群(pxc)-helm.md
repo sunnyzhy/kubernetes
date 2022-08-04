@@ -83,8 +83,6 @@ percona/pxc-operator         	1.11.1       	1.11.0     	A Helm chart for Deployi
 # vim /usr/local/k8s/mysql/pxc-db/values.yaml
 ```
 
-***注: 如果节点的数量充足，就可以不用设置 pod 的容忍度。***
-
 ```yml
 pxc:
   tolerations:
@@ -129,6 +127,22 @@ secrets:
     pmmserver: root
     operator: root
     replication: root
+```
+
+***注: 如果节点的数量充足，就可以不用设置 pod 的容忍度。***
+
+查询主节点的污点信息:
+
+```bash
+# kubectl get nodes
+NAME                STATUS   ROLES           AGE   VERSION
+centos-docker-163   Ready    control-plane   16d   v1.24.3
+centos-docker-164   Ready    <none>          16d   v1.24.3
+centos-docker-165   Ready    <none>          16d   v1.24.3
+
+# kubectl describe node centos-docker-163 | grep -A 1 Taints
+Taints:             node-role.kubernetes.io/control-plane:NoSchedule
+                    node-role.kubernetes.io/master:NoSchedule
 ```
 
 ## 重新制作 chart
