@@ -266,7 +266,9 @@ ee5fb9519167d2b67599a656b197f67080af4114 10.244.2.97:6379@16379 slave 9eda9611e4
 08d3df09c62784381b5edc9f637b74d04fad706a 10.244.2.98:6379@16379 slave 3f2678307ac8621e0e345591c1998f0e68d48d93 0 1659424691707 3 connected
 ```
 
-## 创建 Service(NodePort)
+## 外部访问 redis 集群
+
+创建 NodePort 类型的 Service:
 
 ```bash
 # vim /usr/local/k8s/redis/service.yaml
