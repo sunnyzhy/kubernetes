@@ -226,7 +226,9 @@ mysql-cluster-secondary            ClusterIP   10.107.219.105   <none>        33
 mysql-cluster-secondary-headless   ClusterIP   None             <none>        3306/TCP             3m49s
 ```
 
-## 创建 Service(NodePort)
+## 外部访问 mysql 集群
+
+创建 NodePort 类型的 Service:
 
 ```bash
 # vim /usr/local/k8s/mysql/service.yaml
