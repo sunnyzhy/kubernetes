@@ -11,6 +11,30 @@
 
 - nfs 根目录: ```/nfs/data```
 
+- 集群相关资料:
+
+    1. Oracle MySQL
+        ```
+        https://github.com/mysql/mysql-operator
+        https://dev.mysql.com/doc/mysql-operator/en/
+        ```
+ 
+    2. Percona MySQL
+        ```
+        https://github.com/percona/percona-xtradb-cluster-operator
+        https://www.percona.com/doc/kubernetes-operator-for-pxc/helm.html
+        ```
+
+    3. presslabs/mysql-operator
+        ```
+        https://github.com/bitpoke/mysql-operator
+        ```
+
+    4. Operator社区网站：
+        ```
+        https://operatorhub.io/?category=Database
+        ```
+
 ## 创建 mysql 目录
 
 ```bash
