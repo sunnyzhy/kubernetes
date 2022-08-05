@@ -92,7 +92,7 @@ auth:
 ```bash
 # rm -rf /usr/local/k8s/mysql/mysql-9.2.3.tgz
 
-# helm package /usr/local/k8s/mysql/mysql
+# helm package /usr/local/k8s/mysql/mysql -d /usr/local/k8s/mysql
 
 # tree /usr/local/k8s/mysql
 /usr/local/k8s/mysql
