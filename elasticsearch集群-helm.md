@@ -13,26 +13,18 @@
 
 - 集群相关资料:
 
-    1. Oracle MySQL
+    1. Elasticsearch
         ```
-        https://github.com/mysql/mysql-operator
-        https://dev.mysql.com/doc/mysql-operator/en/
+        https://github.com/elastic/helm-charts/tree/main/elasticsearch
+        
+        https://docs.bitnami.com/kubernetes/apps/elasticsearch/get-started/
         ```
  
-    2. Percona MySQL
+    2. Kibana
         ```
-        https://github.com/percona/percona-xtradb-cluster-operator
-        https://www.percona.com/doc/kubernetes-operator-for-pxc/helm.html
-        ```
-
-    3. presslabs/mysql-operator
-        ```
-        https://github.com/bitpoke/mysql-operator
-        ```
-
-    4. Operator社区网站：
-        ```
-        https://operatorhub.io/?category=Database
+        https://github.com/elastic/helm-charts/tree/main/kibana
+        
+        https://docs.bitnami.com/kubernetes/apps/kibana/get-started/
         ```
 
 ## 创建 elasticsearch 目录
@@ -73,6 +65,10 @@ bitnami/kibana               	10.1.17      	8.3.3      	Kibana is an open source
 global:
   storageClass: "nfs-client"
   kibanaEnabled: true
+
+extraEnvVars:
+  - name: TZ
+    value: Asia/Shanghai
 
 security:
   enabled: true
