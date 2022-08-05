@@ -63,7 +63,7 @@ global:
 ```bash
 # rm -rf /usr/local/k8s/redis/redis-cluster-8.1.2.tgz
 
-# helm package /usr/local/k8s/redis/redis-cluster
+# helm package /usr/local/k8s/redis/redis-cluster -d /usr/local/k8s/redis
 
 # tree /usr/local/k8s/redis
 /usr/local/k8s/redis
