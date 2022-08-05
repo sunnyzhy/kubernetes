@@ -43,16 +43,8 @@ aliyun/sensu         	0.2.0        	           	Sensu monitoring framework backe
 # vim /usr/local/k8s/redis/redis-cluster/values.yaml
 ```
 
-配置 ```storageClass``` 和 ```password```:
-
 ```yml
 global:
-  imageRegistry: ""
-  ## E.g.
-  ## imagePullSecrets:
-  ##   - myRegistryKeySecretName
-  ##
-  imagePullSecrets: []
   storageClass: "nfs-client"
   redis:
     password: "root"
