@@ -90,7 +90,7 @@ bitnami/mariadb-galera       	7.3.7        	10.6.8     	MariaDB Galera is a mult
 ```bash
 # rm -rf /usr/local/k8s/mysql/percona-xtradb-cluster-0.0.2.tgz
 
-# helm package /usr/local/k8s/mysql/percona-xtradb-cluster
+# helm package /usr/local/k8s/mysql/percona-xtradb-cluster -d /usr/local/k8s/mysql
 
 # tree /usr/local/k8s/mysql
 /usr/local/k8s/mysql
