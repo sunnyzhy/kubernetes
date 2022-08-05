@@ -95,6 +95,7 @@ pxc:
     storageClass: "nfs-client"
 
 haproxy:
+  enabled: true
   tolerations:
     - key: "node-role.kubernetes.io/control-plane"
       operator: "Exists"
@@ -102,12 +103,14 @@ haproxy:
       operator: "Exists"
 
 proxysql:
+  enabled: false
   tolerations:
     - key: "node-role.kubernetes.io/control-plane"
       operator: "Exists"
     - key: "node-role.kubernetes.io/master"
       operator: "Exists"
   persistence:
+    enabled: true
     storageClass: "nfs-client"
 
 backup:
@@ -129,7 +132,10 @@ secrets:
     replication: root
 ```
 
-***注: 如果节点的数量充足，就可以不用设置 pod 的容忍度。***
+注: 
+
+- 如果节点的数量充足，就可以不用设置 pod 的容忍度
+- haproxy 和 proxysql 同时只能有一个生效
 
 查询主节点的污点信息:
 
@@ -150,7 +156,7 @@ Taints:             node-role.kubernetes.io/control-plane:NoSchedule
 ```bash
 # rm -rf /usr/local/k8s/mysql/pxc-db-1.11.5.tgz
 
-# helm package /usr/local/k8s/mysql/pxc-db
+# helm package /usr/local/k8s/mysql/pxc-db -d /usr/local/k8s/mysql
 
 # tree /usr/local/k8s/mysql
 /usr/local/k8s/mysql
@@ -237,6 +243,7 @@ NOTES:
       pxc-db-pxc-0 -- mysql -uroot -p"$ROOT_PASSWORD"
 
 2. To connect an Application running in the same Kubernetes cluster you can connect with:
+    ROOT_PASSWORD=`kubectl -n iot get secrets pxc-db -o jsonpath="{.data.root}" | base64 --decode`
 
 
 $ kubectl run -i --tty --rm percona-client --image=percona --restart=Never \
