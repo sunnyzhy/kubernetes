@@ -323,48 +323,48 @@ elasticsearch-cluster-data-hl           ClusterIP   None             <none>     
 elasticsearch-cluster-ingest-hl         ClusterIP   None             <none>        9200/TCP,9300/TCP                                26m
 elasticsearch-cluster-kibana            ClusterIP   10.100.91.85     <none>        5601/TCP                                         26m
 elasticsearch-cluster-master-hl         ClusterIP   None             <none>        9200/TCP,9300/TCP                                26m
-elasticsearch-cluster-master-service    NodePort    10.100.9.186     <none>        9200:30200/TCP,9300:30300/TCP                    91m
 ```
 
 ## 内部访问 elasticsearch 集群
 
-在 elasticsearch-cluster-master-0 的 pod 里新建 ```bolg``` 索引:
+在 elasticsearch-cluster-coordinating-0 的 pod 里新建 ```foo``` 索引:
 
 ```bash
-# kubectl exec -it elasticsearch-cluster-master-0 -n iot -- /bin/sh
+# kubectl exec -it elasticsearch-cluster-coordinating-0 -n iot -- /bin/sh
 
-$ curl localhost:9200/_cat/indices?v
+$ curl -k -u elastic:root https://localhost:9200/_cat/indices?v
+health status index uuid pri rep docs.count docs.deleted store.size pri.store.size
 
-$ curl -XPUT localhost:9200/foo/?pretty
+$ curl -k -u elastic:root -XPUT https://localhost:9200/foo/?pretty
 {
   "acknowledged" : true,
   "shards_acknowledged" : true,
   "index" : "foo"
 }
 
-$ curl localhost:9200/_cat/indices?v
+$ curl -k -u elastic:root https://localhost:9200/_cat/indices?v
 health status index uuid                   pri rep docs.count docs.deleted store.size pri.store.size
-green  open   foo   BEdJ-HbCSL2_0Y__k4XhuA   1   1          0            0       450b           225b
+green  open   foo   guioAO1vSt2u7onjZ3t6FA   1   1          0            0       450b           225b
 ```
 
-在 elasticsearch-cluster-master-1 的 pod 里查看索引同步情况:
+在 elasticsearch-cluster-coordinating-1 的 pod 里查看索引同步情况:
 
 ```bash
-# kubectl exec -it elasticsearch-cluster-master-1 -n iot -- /bin/sh
+# kubectl exec -it elasticsearch-cluster-coordinating-1 -n iot -- /bin/sh
 
-$ curl localhost:9200/_cat/indices?v
+$ curl -k -u elastic:root https://localhost:9200/_cat/indices?v
 health status index uuid                   pri rep docs.count docs.deleted store.size pri.store.size
-green  open   foo   BEdJ-HbCSL2_0Y__k4XhuA   1   1          0            0       450b           225b
+green  open   foo   guioAO1vSt2u7onjZ3t6FA   1   1          0            0       450b           225b
 ```
 
-在 elasticsearch-cluster-master-2 的 pod 里查看索引同步情况:
+在 elasticsearch-cluster-coordinating-2 的 pod 里查看索引同步情况:
 
 ```bash
-# kubectl exec -it elasticsearch-cluster-master-2 -n iot -- /bin/sh
+# kubectl exec -it elasticsearch-cluster-coordinating-2 -n iot -- /bin/sh
 
-$ curl localhost:9200/_cat/indices?v
+$ curl -k -u elastic:root https://localhost:9200/_cat/indices?v
 health status index uuid                   pri rep docs.count docs.deleted store.size pri.store.size
-green  open   foo   BEdJ-HbCSL2_0Y__k4XhuA   1   1          0            0       450b           225b
+green  open   foo   guioAO1vSt2u7onjZ3t6FA   1   1          0            0       450b           225b
 ```
 
 ## 外部访问 elasticsearch 集群
@@ -411,17 +411,26 @@ elasticsearch-cluster-service   NodePort   10.106.47.139   <none>        9200:30
 外部服务器连接 elasticsearch 集群:
 
 ```bash
-# curl -u elastic:root -XPUT 192.168.5.163:30200/bar/?pretty
+# curl -k -u elastic:root -XPUT https://192.168.5.163:30200/bar/?pretty
 {
   "acknowledged" : true,
   "shards_acknowledged" : true,
   "index" : "bar"
 }
 
-# curl -u elastic:root 192.168.5.163:30200/_cat/indices?v
+# curl -k -u elastic:root -XGET https://192.168.5.163:30200/_cat/indices?v
 health status index uuid                   pri rep docs.count docs.deleted store.size pri.store.size
-green  open   bar   qKjH3nISTv-t8LaJoyR_DQ   1   1          0            0       450b           225b
-green  open   foo   CZ4fzNgETJWmFOGxDlW3Og   1   1          0            0       450b           225b
+green  open   bar   juntQJk-ToWD8WiY-7xsUQ   1   1          0            0       450b           225b
+green  open   foo   guioAO1vSt2u7onjZ3t6FA   1   1          0            0       450b           225b
+
+# curl -k -u elastic:root -XDELETE https://192.168.5.163:30200/foo?pretty
+{
+  "acknowledged" : true
+}
+
+# curl -k -u elastic:root -XGET https://192.168.5.163:30200/_cat/indices?v
+health status index uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+green  open   bar   juntQJk-ToWD8WiY-7xsUQ   1   1          0            0       450b           225b
 ```
 
 ## Elasticsearch 角色
