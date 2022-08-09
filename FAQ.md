@@ -65,3 +65,11 @@ https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64/repodata/r
 ```bash
 # yum install -y epel-release
 ```
+
+## pod 无法删除，总是处于 terminate 状态
+
+强制删除 pod:
+
+```bash
+# kubectl delete pod <pod-name> -n <namespace> --force --grace-period=0
+```
