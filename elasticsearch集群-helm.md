@@ -109,7 +109,7 @@ ingest:
       operator: "Exists"
 ```
 
-如果 elasticsearch 开启了 X-Pack，就需要配置 kibana ```./charts/kibana/values.yaml```:
+如果 elasticsearch 开启了 ```X-Pack(security.enabled=true)```，就需要配置 kibana ```./charts/kibana/values.yaml```:
 
 ```bash
 # vim /usr/local/k8s/elasticsearch/elasticsearch/charts/kibana/values.yaml
@@ -140,12 +140,12 @@ elasticsearch:
 注:
 
 1. elasticsearch chart 自带 kibana chart，只需配置 ```global.kibanaEnabled=true``` 即可开启 kibana 服务
-2. 如果 elasticsearch 开启了 X-Pack ，则:
+2. 如果 elasticsearch 开启了 ```X-Pack``` ，则:
    - pod 启动时间会比较长
-   - 务必修改 ```./charts/kibana/values.yaml``` 里 ```elasticsearch.security``` 的相关配置
-3. kibana 可以开启 tls，也可以不开启 tls
-   - ```elasticsearch.security.tls.existingSecret``` 的值: ```<release-name>-coordinating-crt```
-   - ```elasticsearch.security.auth.elasticsearchPasswordSecret``` 的值必须是包含 ```key=elasticsearch-password'``` 的 secret: ```<release-name>```
+   - 务必修改 ```./charts/kibana/values.yaml``` 里 ```elasticsearch.security``` 的相关配置（以下只列出了需要注意的几点配置）:
+      - ```elasticsearch.security.tls.existingSecret: <release-name>-coordinating-crt```
+      - ```elasticsearch.security.auth.elasticsearchPasswordSecret: <release-name>```，值必须是包含 ```key=elasticsearch-password'``` 的 secret
+      - ```tls.enabled=true```, 使用 ```https``` 访问 kibana; ```tls.enabled=false```, 使用 ```http``` 访问 kibana
 
 ## 重新制作 chart
 
