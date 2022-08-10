@@ -144,6 +144,8 @@ elasticsearch:
    - pod 启动时间会比较长
    - 务必修改 ```./charts/kibana/values.yaml``` 里 ```elasticsearch.security``` 的相关配置
 3. kibana 可以开启 tls，也可以不开启 tls
+   - ```elasticsearch.security.tls.existingSecret``` 的值: ```<release-name>-coordinating-crt```
+   - ```elasticsearch.security.auth.elasticsearchPasswordSecret``` 的值必须是包含 ```key=elasticsearch-password'``` 的 secret: ```<release-name>```
 
 ## 重新制作 chart
 
