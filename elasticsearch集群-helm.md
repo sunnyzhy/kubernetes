@@ -27,6 +27,10 @@
         https://docs.bitnami.com/kubernetes/apps/kibana/get-started/
         ```
 
+    3. Kibana 连接 Elasticsearch(带安全验证)
+        ```
+        https://github.com/bitnami/charts/issues/10076
+        ```
 ## 创建 elasticsearch 目录
 
 ```bash
