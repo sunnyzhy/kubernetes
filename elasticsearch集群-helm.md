@@ -409,6 +409,29 @@ health status index uuid                   pri rep docs.count docs.deleted store
 green  open   foo   guioAO1vSt2u7onjZ3t6FA   1   1          0            0       450b           225b
 ```
 
+在任意 pod 里查看集群的健康状态:
+
+```bash
+$ curl -k -u elastic:root https://localhost:9200/_cluster/health?pretty=true
+{
+  "cluster_name" : "elastic",
+  "status" : "green",
+  "timed_out" : false,
+  "number_of_nodes" : 12,
+  "number_of_data_nodes" : 3,
+  "active_primary_shards" : 1,
+  "active_shards" : 2,
+  "relocating_shards" : 0,
+  "initializing_shards" : 0,
+  "unassigned_shards" : 0,
+  "delayed_unassigned_shards" : 0,
+  "number_of_pending_tasks" : 0,
+  "number_of_in_flight_fetch" : 0,
+  "task_max_waiting_in_queue_millis" : 0,
+  "active_shards_percent_as_number" : 100.0
+}
+```
+
 ## 外部访问 elasticsearch 集群
 
 创建 NodePort 类型的 Service:
@@ -473,6 +496,25 @@ green  open   foo   guioAO1vSt2u7onjZ3t6FA   1   1          0            0      
 # curl -k -u elastic:root -XGET https://192.168.5.163:30200/_cat/indices?v
 health status index uuid                   pri rep docs.count docs.deleted store.size pri.store.size
 green  open   bar   juntQJk-ToWD8WiY-7xsUQ   1   1          0            0       450b           225b
+
+# curl -k -u elastic:root -XGET https://192.168.5.163:30200/_cluster/health?pretty=true
+{
+  "cluster_name" : "elastic",
+  "status" : "green",
+  "timed_out" : false,
+  "number_of_nodes" : 12,
+  "number_of_data_nodes" : 3,
+  "active_primary_shards" : 1,
+  "active_shards" : 2,
+  "relocating_shards" : 0,
+  "initializing_shards" : 0,
+  "unassigned_shards" : 0,
+  "delayed_unassigned_shards" : 0,
+  "number_of_pending_tasks" : 0,
+  "number_of_in_flight_fetch" : 0,
+  "task_max_waiting_in_queue_millis" : 0,
+  "active_shards_percent_as_number" : 100.0
+}
 ```
 
 ## 外部访问 kibana
