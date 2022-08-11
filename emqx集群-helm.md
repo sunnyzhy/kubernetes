@@ -197,7 +197,7 @@ emqx-cluster-service   NodePort   10.96.246.44   <none>        1883:30183/TCP,88
 
 ### 普通连接 emqx 集群
 
-[emqx-01](./images/emqx/emqx-01.png)
+![emqx-01](./images/emqx/emqx-01.png)
 
 ### ssl 连接 emqx 集群
 
@@ -209,4 +209,4 @@ emqx-cluster-service   NodePort   10.96.246.44   <none>        1883:30183/TCP,88
 
 2. 连接 emqx 集群:
 
-    [emqx-02](./images/emqx/emqx-02.png)
+    ![emqx-02](./images/emqx/emqx-02.png)
