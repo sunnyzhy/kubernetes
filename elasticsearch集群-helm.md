@@ -517,6 +517,101 @@ green  open   bar   juntQJk-ToWD8WiY-7xsUQ   1   1          0            0      
 }
 ```
 
+查看系统用户:
+
+```bash
+# curl -k -u elastic:root -XGET https://192.168.5.163:30200/_security/user?pretty
+{
+  "elastic" : {
+    "username" : "elastic",
+    "roles" : [
+      "superuser"
+    ],
+    "full_name" : null,
+    "email" : null,
+    "metadata" : {
+      "_reserved" : true
+    },
+    "enabled" : true
+  },
+  "kibana" : {
+    "username" : "kibana",
+    "roles" : [
+      "kibana_system"
+    ],
+    "full_name" : null,
+    "email" : null,
+    "metadata" : {
+      "_deprecated_reason" : "Please use the [kibana_system] user instead.",
+      "_deprecated" : true,
+      "_reserved" : true
+    },
+    "enabled" : true
+  },
+  "kibana_system" : {
+    "username" : "kibana_system",
+    "roles" : [
+      "kibana_system"
+    ],
+    "full_name" : null,
+    "email" : null,
+    "metadata" : {
+      "_reserved" : true
+    },
+    "enabled" : true
+  },
+  "logstash_system" : {
+    "username" : "logstash_system",
+    "roles" : [
+      "logstash_system"
+    ],
+    "full_name" : null,
+    "email" : null,
+    "metadata" : {
+      "_reserved" : true
+    },
+    "enabled" : true
+  },
+  "beats_system" : {
+    "username" : "beats_system",
+    "roles" : [
+      "beats_system"
+    ],
+    "full_name" : null,
+    "email" : null,
+    "metadata" : {
+      "_reserved" : true
+    },
+    "enabled" : true
+  },
+  "apm_system" : {
+    "username" : "apm_system",
+    "roles" : [
+      "apm_system"
+    ],
+    "full_name" : null,
+    "email" : null,
+    "metadata" : {
+      "_reserved" : true
+    },
+    "enabled" : true
+  },
+  "remote_monitoring_user" : {
+    "username" : "remote_monitoring_user",
+    "roles" : [
+      "remote_monitoring_collector",
+      "remote_monitoring_agent"
+    ],
+    "full_name" : null,
+    "email" : null,
+    "metadata" : {
+      "_reserved" : true
+    },
+    "enabled" : true
+  }
+}
+```
+
 ## 外部访问 kibana
 
 创建 NodePort 类型的 Service:
