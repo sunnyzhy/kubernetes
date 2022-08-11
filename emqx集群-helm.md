@@ -191,15 +191,15 @@ NAME                   TYPE       CLUSTER-IP     EXTERNAL-IP   PORT(S)          
 emqx-cluster-service   NodePort   10.96.246.44   <none>        1883:30183/TCP,8883:30883/TCP,8083:30083/TCP,8084:30084/TCP,18083:31083/TCP,4370:30370/TCP   17s
 ```
 
-外部服务器访问 emqx 的 dashboard:
+### 外部服务器访问 emqx 的 dashboard
 
 在浏览器的地址栏里输入:```http://192.168.5.163:31083/```; ```用户名/密码```: ```admin/root```
 
-普通连接 emqx 集群:
+### 普通连接 emqx 集群
 
 [emqx-01](./images/emqx/emqx-01.png)
 
-ssl 连接 emqx 集群:
+### ssl 连接 emqx 集群
 
 1. 从 pod 里拷贝 certs 目录:
 
