@@ -699,3 +699,11 @@ kibana-service   NodePort   10.110.179.33   <none>        5601:30601/TCP   2m21s
 
     角色配置方式：node.ingest: true
     ```
+
+## FAQ
+
+### curl: (52) Empty reply from server
+
+原因: elasticsearch 开启了 X-Pack，所以不允许使用 ```http``` 访问
+
+解决方法: 使用 ```https``` 访问
