@@ -565,11 +565,11 @@ NAME                   TYPE       CLUSTER-IP     EXTERNAL-IP   PORT(S)          
 emqx-cluster-service   NodePort   10.96.246.44   <none>        1883:30183/TCP,8883:30883/TCP,8083:30083/TCP,8084:30084/TCP,18083:31083/TCP,4370:30370/TCP   17s
 ```
 
-### 外部服务器访问 emqx 的 dashboard
+### 访问 dashboard
 
 在浏览器的地址栏里输入:```http://192.168.5.163:31083/```; ```用户名/密码```: ```admin/root```
 
-### 普通连接 emqx 集群
+### tcp 连接 emqx 集群
 
 ![emqx-01](./images/emqx/emqx-01.png)
 
@@ -585,9 +585,9 @@ emqx-cluster-service   NodePort   10.96.246.44   <none>        1883:30183/TCP,88
         # kubectl exec -n iot emqx-cluster-0 -- tar cf - /opt/emqx/etc/certs | tar xf - -C /usr/local/k8s/emqx/
         ```
 
-        把 ```/usr/local/k8s/emqx/opt/emqx/etc/certs/cacert.pem``` 拷贝到外部服务器的任意位置，比如: ```D:\certs\cacert.pem```
+        把 ```/usr/local/k8s/emqx/opt/emqx/etc/certs/cacert.pem``` 拷贝到外部服务器: ```D:\certs\cacert.pem```
    
-   - 直接把 ```/usr/local/k8s/emqx/emqx/values.yaml``` 里的 cacert.pem 内容拷贝到 ```D:\certs\cacert.pem```:
+   - 直接把 ```/usr/local/k8s/emqx/emqx/values.yaml``` 里的 cacert.pem 内容拷贝到外部服务器: ```D:\certs\cacert.pem```:
 
         ```pem
         -----BEGIN CERTIFICATE-----
