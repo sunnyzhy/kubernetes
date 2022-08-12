@@ -11,7 +11,7 @@
 
 - nfs 根目录: ```/nfs/data```
 
-- 容器的 certs 目录:
+- emqx 容器的 certs 目录:
 
     ```
     /opt/emqx/etc/certs
