@@ -1,4 +1,4 @@
-# mysql 集群 (aliyun-pxc) - helm
+# helm - mysql 集群 (aliyun-pxc)
 
 ## 前言
 
