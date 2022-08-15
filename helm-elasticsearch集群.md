@@ -106,6 +106,7 @@ coordinating:
       operator: "Exists"
 
 ingest:
+  enabled: true
   replicaCount: 3
   tolerations:
     - key: "node-role.kubernetes.io/control-plane"
