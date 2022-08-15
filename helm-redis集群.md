@@ -1,4 +1,4 @@
-# redis 集群 - helm
+# helm - redis 集群
 
 ## 前言
 
