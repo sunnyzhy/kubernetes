@@ -1,4 +1,4 @@
-# elasticsearch 集群 - helm
+# helm - elasticsearch 集群
 
 ## 前言
 
@@ -31,6 +31,7 @@
         ```
         https://github.com/bitnami/charts/issues/10076
         ```
+
 ## 创建 elasticsearch 目录
 
 ```bash
