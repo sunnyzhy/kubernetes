@@ -1,4 +1,4 @@
-# minio 集群 - helm
+# helm - minio 集群
 
 ## 前言
 
