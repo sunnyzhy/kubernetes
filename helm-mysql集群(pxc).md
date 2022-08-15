@@ -1,4 +1,4 @@
-# mysql 集群 (pxc) - helm
+# helm - mysql 集群 (pxc)
 
 ## 前言
 
