@@ -17,6 +17,8 @@
     http://docs.minio.org.cn/docs/master/deploy-minio-on-kubernetes
     ```
 
+- minio 账号的密码长度必须是 ```>= 8```
+
 ## 创建 minio 目录
 
 ```bash
