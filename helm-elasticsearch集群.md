@@ -32,7 +32,7 @@
         https://github.com/bitnami/charts/issues/10076
         ```
 
-- elasticsearch 各个内置账号的密码长度必须 ```>= 6```
+- elasticsearch 账号的密码长度必须 ```>= 6```
 
 ## 创建 elasticsearch 目录
 
