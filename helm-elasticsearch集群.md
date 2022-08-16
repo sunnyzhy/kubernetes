@@ -620,7 +620,7 @@ NAME                                   TYPE       CLUSTER-IP     EXTERNAL-IP   P
 elasticsearch-cluster-kibana-service   NodePort   10.102.93.36   <none>        5601:30601/TCP   15s
 ```
 
-在外部服务器的浏览器地址栏里输入以下链接, ```用户名/密码: elastic/elastic```:
+在外部服务器的浏览器地址栏里输入以下链接， ```用户名/密码: elastic/elastic```:
 
 - ```kibana.tls.enabled=false```, 使用 ```http``` 访问 kibana:
 
