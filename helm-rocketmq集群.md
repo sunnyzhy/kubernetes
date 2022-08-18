@@ -14,6 +14,8 @@
 - 集群相关资料:
 
     ```
+    https://github.com/sunnyzhy/rocketmq-helm
+    
     https://github.com/apache/rocketmq-operator
 
     https://github.com/itboon/rocketmq-helm
