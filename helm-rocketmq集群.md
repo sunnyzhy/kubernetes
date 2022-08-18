@@ -145,6 +145,27 @@ data:
     brokerRole=SLAVE
     flushDiskType=ASYNC_FLUSH
     namesrvAddr={{ range $i := until $namesrvReplicas }}{{ if gt $i 0 }}{{ printf ";" }}{{ end }}{{ printf "%s-namesrv-%d.%s-namesrv-hl:9876" $fullname $i $fullname }}{{ end }}
+  'application.properties': |+
+    server.address=0.0.0.0
+    server.port=8080
+
+    spring.application.name=rocketmq-dashboard
+    spring.http.encoding.charset=UTF-8
+    spring.http.encoding.enabled=true
+    spring.http.encoding.force=true
+    logging.level.root=INFO
+    logging.config=classpath:logback.xml
+
+    rocketmq.config.namesrvAddr={{ printf "%s-namesrv-hl:9876" $fullname }}
+    rocketmq.config.dataPath=/tmp/rocketmq-console/data
+    rocketmq.config.enableDashBoardCollect=true
+    rocketmq.config.ticketKey=ticket
+
+    rocketmq.config.loginRequired=true
+    rocketmq.config.useTLS=false
+  'users.properties': |+
+    admin=admin,1
+    user=user
 ```
 
 ### 部署 rocketmq 容器实例
@@ -540,8 +561,26 @@ spec:
         env:
           - name: TZ
             value: Asia/Shanghai
-          - name: JAVA_OPTS
-            value: {{ printf " -Drocketmq.namesrv.addr=%s-namesrv-hl:9876" (include "rocketmq.fullname" .)  }}
+        volumeMounts:
+          - mountPath: /application.properties
+            name: config-application
+            subPath: application.properties
+          - mountPath: /users.properties
+            name: config-users
+            subPath: users.properties
+      volumes:
+      - name: config-application
+        configMap:
+          name: rocketmq-config
+          items:
+          - key: application.properties
+            path: application.properties
+      - name: config-users
+        configMap:
+          name: rocketmq-config
+          items:
+          - key: users.properties
+            path: users.properties
 ```
 
 ### 部署容器实例的服务
@@ -712,4 +751,4 @@ rocketmq-cluster-namesrv-hl             ClusterIP   None             <none>     
 
 ## 外部访问 rocketmq 集群
 
-在浏览器的地址栏里输入:```http://192.168.5.163:30080/```
+在浏览器的地址栏里输入:```http://192.168.5.163:30080/```, ```用户名/密码: admin/admin```
