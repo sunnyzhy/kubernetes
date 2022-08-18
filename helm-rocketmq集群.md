@@ -596,6 +596,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "rocketmq.fullname" . }}-namesrv-hl
+  namespace: {{ .Release.Namespace }}
   labels:
     app: namesrv
     app.kubernetes.io/component: namesrv
@@ -624,6 +625,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "rocketmq.fullname" . }}-dashboard-hl
+  namespace: {{ .Release.Namespace }}
   labels:
     app: dashboard
     app.kubernetes.io/component: dashboard
@@ -651,8 +653,8 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: rocketmq-cluster-dashboard-service
-  namespace: iot
+  name: {{ include "rocketmq.fullname" . }}-dashboard-service
+  namespace: {{ .Release.Namespace }}
 spec:
   selector:
     app: dashboard
