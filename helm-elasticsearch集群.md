@@ -156,7 +156,7 @@ spec:
       nodePort: {{ .Values.service.nodePorts.restAPI }}
     - name: tcp-transport
       port: {{ .Values.service.ports.transport }}
-      {{ .Values.service.nodePorts.transport }}
+      nodePort: {{ .Values.service.nodePorts.transport }}
   type: NodePort
 ```
 
@@ -228,7 +228,7 @@ elasticsearch:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "common.names.fullname" . }}-kibana-service
+  name: {{ include "common.names.fullname" . }}-service
   namespace: {{ include "common.names.namespace" . | quote }}
   labels: {{- include "common.labels.standard" . | nindent 4 }}
     {{- if .Values.commonLabels }}
@@ -450,14 +450,17 @@ persistentvolume/pvc-e0307d6e-dd1b-4c53-94e4-377e44efaae2   8Gi        RWO      
 persistentvolume/pvc-e0bb1291-3635-4b09-b848-5310c5b590a2   8Gi        RWO            Delete           Bound    iot/data-elasticsearch-cluster-master-0      nfs-client              44m
 
 # kubectl get svc -n iot | grep elasticsearch
-elasticsearch-cluster                   ClusterIP   10.98.156.14     <none>        9200/TCP,9300/TCP                                                                            46m
-elasticsearch-cluster-coordinating-hl   ClusterIP   None             <none>        9200/TCP,9300/TCP                                                                            46m
-elasticsearch-cluster-data-hl           ClusterIP   None             <none>        9200/TCP,9300/TCP                                                                            46m
-elasticsearch-cluster-kibana            ClusterIP   10.97.58.185     <none>        5601/TCP                                                                                     46m
-elasticsearch-cluster-master-hl         ClusterIP   None             <none>        9200/TCP,9300/TCP                                                                            46m
+elasticsearch-cluster                         ClusterIP   10.98.156.14     <none>        9200/TCP,9300/TCP                                                             46m
+elasticsearch-cluster-coordinating-hl         ClusterIP   None             <none>        9200/TCP,9300/TCP                                                             46m
+elasticsearch-cluster-data-hl                 ClusterIP   None             <none>        9200/TCP,9300/TCP                                                             46m
+elasticsearch-cluster-kibana                  ClusterIP   10.97.58.185     <none>        5601/TCP                                                                       46m
+elasticsearch-cluster-kibana-kibana-service   NodePort    10.102.39.109    <none>        5601:30601/TCP                                                                3m9s
+elasticsearch-cluster-master-hl               ClusterIP   None             <none>        9200/TCP,9300/TCP                                                             46m
+elasticsearch-cluster-service                 NodePort    10.110.116.233   <none>        9200:30200/TCP,9300:30300/TCP                                                 46m
 
 # kubectl get ingress -n iot | grep elasticsearch
-
+elasticsearch-cluster          nginx   iot.elasticsearch   10.102.1.248   80      46m
+elasticsearch-cluster-kibana   nginx   iot.kibana          10.102.1.248   80      46m
 ```
 
 ## 内部访问 elasticsearch 集群
