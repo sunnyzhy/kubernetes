@@ -184,9 +184,9 @@ nfs-subdir-external-provisioner/nfs-subdir-exte...	4.0.16       	4.0.2      	nfs
 
     ```bash
     # helm install nfs-subdir-external-provisioner /usr/local/k8s/nfs-client-provisioner/nfs-subdir-external-provisioner-4.0.16.tgz  \
-    >     --set nfs.server=192.168.5.163 \
-    >     --set nfs.path=/nfs/data \
-    >     --namespace iot
+          --set nfs.server=192.168.5.163 \
+          --set nfs.path=/nfs/data \
+          --namespace iot
     ```
 
 - 部署方式 2:
