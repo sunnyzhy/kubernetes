@@ -82,9 +82,24 @@ emqxConfig:
   EMQX_DASHBOARD__DEFAULT_PASSWORD: root
   EMQX_DASHBOARD__DEFAULT_USERNAME: admin
 
+ingress:
+  dashboard:
+    enabled: true
+    hosts:
+    - iot.emqx
+    ingressClassName: nginx
+
 persistence:
   enabled: true
   storageClassName: "nfs-client"
+
+service:
+  nodePorts:
+    dashboard: 31083
+    mqtt: 30183
+    mqttssl: 30883
+    ws: 30083
+    wss: 30084
 
 tolerations: 
   - key: "node-role.kubernetes.io/control-plane"
@@ -440,6 +455,58 @@ spec:
     {{- end }}
 ```
 
+### 部署容器实例的服务 
+
+```bash
+# vim /usr/local/k8s/emqx/emqx/templates/service.yaml
+```
+
+```yml
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "emqx.fullname" . }}-service
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ include "emqx.name" . }}
+    helm.sh/chart: {{ include "emqx.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  type: NodePort
+  ports:
+  - name: mqtt
+    port: {{ .Values.service.mqtt | default 1883 }}
+    protocol: TCP
+    targetPort: mqtt
+    nodePort: {{ .Values.service.nodePorts.mqtt }}
+  - name: mqttssl
+    port: {{ .Values.service.mqttssl | default 8883 }}
+    protocol: TCP
+    targetPort: mqttssl
+    nodePort: {{ .Values.service.nodePorts.mqttssl }}
+  - name: ws
+    port: {{ .Values.service.ws | default 8083 }}
+    protocol: TCP
+    targetPort: ws
+    nodePort: {{ .Values.service.nodePorts.ws }}
+  - name: wss
+    port: {{ .Values.service.wss | default 8084 }}
+    protocol: TCP
+    targetPort: wss
+    nodePort: {{ .Values.service.nodePorts.wss }}
+  - name: dashboard
+    port: {{ .Values.service.dashboard | default 18083 }}
+    protocol: TCP
+    targetPort: dashboard
+    nodePort: {{ .Values.service.nodePorts.dashboard }}
+  selector:
+    app.kubernetes.io/name: {{ include "emqx.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+```
+
 ## 重新制作 chart
 
 ```bash
@@ -499,6 +566,9 @@ persistentvolume/pvc-fd38d0c9-e7a5-4afe-9609-70afc7dc7e52   20Mi       RWO      
 # kubectl get svc -n iot | grep emqx
 emqx-cluster                            ClusterIP   10.99.86.156     <none>        1883/TCP,8883/TCP,8083/TCP,8084/TCP,18083/TCP                                                4m48s
 emqx-cluster-headless                   ClusterIP   None             <none>        1883/TCP,8883/TCP,8083/TCP,8084/TCP,18083/TCP,4370/TCP                                       4m48s
+
+# kubectl get ingress -n iot | grep emqx
+emqx-cluster-dashboard   nginx   iot.emqx   10.102.1.248   80      5m11s
 ```
 
 ## 内部访问 emqx 集群
@@ -507,67 +577,22 @@ emqx-cluster-headless                   ClusterIP   None             <none>     
 
 ## 外部访问 emqx 集群
 
-创建 NodePort 类型的 Service:
-
-```bash
-# vim /usr/local/k8s/emqx/service.yaml
-```
-
-```yml
-apiVersion: v1
-kind: Service
-metadata:
-  name: emqx-cluster-service
-  namespace: iot
-spec:
-  selector:
-    app.kubernetes.io/instance: emqx-cluster
-    app.kubernetes.io/name: emqx
-  ports:
-    - name: mqtt
-      protocol: TCP
-      port: 1883
-      targetPort: mqtt
-      nodePort: 30183
-    - name: mqttssl
-      protocol: TCP
-      port: 8883
-      targetPort: mqttssl
-      nodePort: 30883
-    - name: ws
-      protocol: TCP
-      port: 8083
-      targetPort: ws
-      nodePort: 30083
-    - name: wss
-      protocol: TCP
-      port: 8084
-      targetPort: wss
-      nodePort: 30084
-    - name: dashboard
-      protocol: TCP
-      port: 18083
-      targetPort: dashboard
-      nodePort: 31083
-    - name: ekka
-      protocol: TCP
-      port: 4370
-      targetPort: ekka
-      nodePort: 30370
-  type: NodePort
-```
-
-```bash
-# kubectl apply -f /usr/local/k8s/emqx/service.yaml
-
-# kubectl get svc emqx-cluster-service -n iot
-NAME                   TYPE       CLUSTER-IP     EXTERNAL-IP   PORT(S)                                                                                      AGE
-emqx-cluster-service   NodePort   10.96.246.44   <none>        1883:30183/TCP,8883:30883/TCP,8083:30083/TCP,8084:30084/TCP,18083:31083/TCP,4370:30370/TCP   17s
-```
-
 ### 访问 dashboard
 
+### 通过对外 Service 的方式
+
 在浏览器的地址栏里输入:```http://192.168.5.163:31083/```; ```用户名/密码```: ```admin/root```
+
+### 通过 ingress 的方式
+
+在任一外部服务器的 hosts 文件里配置域名映射:
+
+```bash
+# vim /etc/hosts
+192.168.5.165 iot.emqx
+```
+
+在浏览器的地址栏里输入:```http://iot.emqx/```, ```用户名/密码: admin/root```
 
 ### tcp 连接 emqx 集群
 
