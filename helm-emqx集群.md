@@ -457,6 +457,8 @@ spec:
 
 ### 部署容器实例的服务 
 
+在 ```service.yaml``` 里添加 NodePort 类型的 Service，对外提供服务（非必需，功能同 ingress）:
+
 ```bash
 # vim /usr/local/k8s/emqx/emqx/templates/service.yaml
 ```
@@ -579,11 +581,11 @@ emqx-cluster-dashboard   nginx   iot.emqx   10.102.1.248   80      5m11s
 
 ### 访问 dashboard
 
-### 通过对外 Service 的方式
+#### 通过对外 Service 的方式
 
 在浏览器的地址栏里输入:```http://192.168.5.163:31083/```; ```用户名/密码```: ```admin/root```
 
-### 通过 ingress 的方式
+#### 通过 ingress 的方式
 
 在任一外部服务器的 hosts 文件里配置域名映射:
 
