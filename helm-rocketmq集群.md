@@ -95,7 +95,7 @@ ingress:
   enabled: true
   className: 'nginx'
   hosts:
-    - host: iot.mq
+    - host: iot.rocketmq
 ```
 
 ### 部署配置文件存储卷
@@ -788,7 +788,7 @@ REVISION: 1
 TEST SUITE: None
 NOTES:
 1. Get the application URL by running these commands:
-  http://iot.mq/
+  http://iot.rocketmq/
 ```
 
 查看资源:
@@ -826,7 +826,7 @@ rocketmq-cluster-dashboard-service      NodePort    10.110.142.44    <none>     
 rocketmq-cluster-namesrv-hl             ClusterIP   None             <none>        9876/TCP                                                                                     69s
 
 # kubectl get ingress -n iot | grep rocketmq
-rocketmq-cluster   nginx   iot.mq   10.102.1.248   80      76s
+rocketmq-cluster   nginx   iot.rocketmq   10.102.1.248   80      76s
 ```
 
 ## 内部访问 rocketmq 集群
@@ -845,7 +845,7 @@ rocketmq-cluster   nginx   iot.mq   10.102.1.248   80      76s
 
 ```bash
 # vim /etc/hosts
-192.168.5.165 iot.mq
+192.168.5.165 iot.rocketmq
 ```
 
-在浏览器的地址栏里输入:```http://iot.mq/```, ```用户名/密码: admin/admin```
+在浏览器的地址栏里输入:```http://iot.rocketmq/```, ```用户名/密码: admin/admin```
