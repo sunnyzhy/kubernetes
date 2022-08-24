@@ -197,7 +197,7 @@ Taints:             node-role.kubernetes.io/control-plane:NoSchedule
 ## 部署 pxc-operator
 
 ```bash
-# helm install pxc-operator pxc-operator-1.11.1.tgz -n iot
+# helm install pxc-operator /usr/local/k8s/mysql/pxc-operator-1.11.1.tgz -n iot
 NAME: pxc-operator
 LAST DEPLOYED: Thu Aug  4 11:20:30 2022
 NAMESPACE: iot
