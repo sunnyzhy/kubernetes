@@ -824,6 +824,9 @@ persistentvolume/pvc-c1df1ed5-0ab9-42ac-bb9b-344d3f2dd046   10Gi       RWX      
 rocketmq-cluster-dashboard-hl           ClusterIP   None             <none>        8080/TCP                                                                                     69s
 rocketmq-cluster-dashboard-service      NodePort    10.110.142.44    <none>        8080:30080/TCP                                                                               69s
 rocketmq-cluster-namesrv-hl             ClusterIP   None             <none>        9876/TCP                                                                                     69s
+
+# kubectl get ingress -n iot | grep rocketmq
+rocketmq-cluster   nginx   iot.mq   10.102.1.248   80      76s
 ```
 
 ## 内部访问 rocketmq 集群
