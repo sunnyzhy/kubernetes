@@ -455,7 +455,7 @@ spec:
     {{- end }}
 ```
 
-### 部署容器实例的服务 
+### 部署对外的 service
 
 在 ```service.yaml``` 里添加 NodePort 类型的 Service，对外提供服务（非必需，功能同 ingress）:
 
