@@ -81,12 +81,21 @@ persistence:
 
 namesrv:
   replicas: 2
+  port: 9876
 
 dashboard:
   image:
     repository: apacherocketmq/rocketmq-dashboard
     pullPolicy: IfNotPresent
     tag: '1.0.0'
+  port: 8080
+  nodePort: 30080
+
+ingress:
+  enabled: true
+  className: 'nginx'
+  hosts:
+    - host: iot.mq
 ```
 
 ### 部署配置文件存储卷
@@ -149,7 +158,7 @@ data:
     namesrvAddr={{ range $i := until $namesrvReplicas }}{{ if gt $i 0 }}{{ printf ";" }}{{ end }}{{ printf "%s-namesrv-%d.%s-namesrv-hl:9876" $fullname $i $fullname }}{{ end }}
   'application.properties': |+
     server.address=0.0.0.0
-    server.port=8080
+    server.port={{ .Values.dashboard.port }}
 
     spring.application.name=rocketmq-dashboard
     spring.http.encoding.charset=UTF-8
@@ -610,8 +619,8 @@ spec:
   clusterIP: None
   publishNotReadyAddresses: true
   ports:
-    - port: 9876
-      targetPort: 9876
+    - port: {{ .Values.namesrv.port }}
+      targetPort: {{ .Values.namesrv.port }}
       protocol: TCP
       name: rocketmq
   selector:
@@ -639,8 +648,8 @@ spec:
   clusterIP: None
   publishNotReadyAddresses: true
   ports:
-    - port: 8080
-      targetPort: 8080
+    - port: {{ .Values.dashboard.port }}
+      targetPort: {{ .Values.dashboard.port }}
       protocol: TCP
       name: dashboard
   selector:
@@ -664,10 +673,81 @@ spec:
   ports:
     - name: dashboard
       protocol: TCP
-      port: 8080
-      targetPort: 8080
-      nodePort: 30080
+      port: {{ .Values.dashboard.port }}
+      targetPort: {{ .Values.dashboard.port }}
+      nodePort: {{ .Values.dashboard.nodePort }}
   type: NodePort
+```
+
+### 部署 ingress 实例
+
+```bash
+# vim /usr/local/k8s/rocketmq/rocketmq/templates/ingress.yaml
+```
+
+```yml
+{{- if .Values.ingress.enabled -}}
+{{- $fullName := include "rocketmq.fullname" . -}}
+{{- $svcPort := .Values.service.port -}}
+{{- $dashboardPort := .Values.dashboard.port -}}
+{{- if and .Values.ingress.className (not (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion)) }}
+  {{- if not (hasKey .Values.ingress.annotations "kubernetes.io/ingress.class") }}
+  {{- $_ := set .Values.ingress.annotations "kubernetes.io/ingress.class" .Values.ingress.className}}
+  {{- end }}
+{{- end }}
+{{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1
+{{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1beta1
+{{- else -}}
+apiVersion: extensions/v1beta1
+{{- end }}
+kind: Ingress
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "rocketmq.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if and .Values.ingress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- end }}
+  {{- if .Values.ingress.tls }}
+  tls:
+    {{- range .Values.ingress.tls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
+  {{- end }}
+  rules:
+    {{- range .Values.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ .path }}
+            {{- if and .pathType (semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion) }}
+            pathType: {{ .pathType }}
+            {{- end }}
+            backend:
+              {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
+              service:
+                name: {{ $fullName }}-dashboard-hl
+                port:
+                  number: {{ $dashboardPort }}
+              {{- else }}
+              serviceName: {{ $fullName }}-dashboard-hl
+              servicePort: {{ $dashboardPort }}
+              {{- end }}
+          {{- end }}
+    {{- end }}
+{{- end }}
 ```
 
 ## 重新制作 chart
@@ -708,10 +788,7 @@ REVISION: 1
 TEST SUITE: None
 NOTES:
 1. Get the application URL by running these commands:
-  export POD_NAME=$(kubectl get pods --namespace iot -l "app.kubernetes.io/name=rocketmq,app.kubernetes.io/instance=rocketmq-cluster" -o jsonpath="{.items[0].metadata.name}")
-  export CONTAINER_PORT=$(kubectl get pod --namespace iot $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
-  echo "Visit http://127.0.0.1:8080 to use your application"
-  kubectl --namespace iot port-forward $POD_NAME 8080:$CONTAINER_PORT
+  http://iot.mq/
 ```
 
 查看资源:
@@ -755,4 +832,17 @@ rocketmq-cluster-namesrv-hl             ClusterIP   None             <none>     
 
 ## 外部访问 rocketmq 集群
 
+### 通过对外 Service 的方式
+
 在浏览器的地址栏里输入:```http://192.168.5.163:30080/```, ```用户名/密码: admin/admin```
+
+### 通过 ingress 的方式
+
+在任一外部服务器的 hosts 文件里配置域名映射:
+
+```bash
+# vim /etc/hosts
+192.168.5.165 iot.mq
+```
+
+在浏览器的地址栏里输入:```http://iot.mq/```, ```用户名/密码: admin/admin```
