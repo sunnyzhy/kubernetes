@@ -61,6 +61,50 @@ auth:
 extraEnvVars:
   - name: TZ
     value: Asia/Shanghai
+
+service:
+  nodePorts:
+    api: "30900"
+    console: "30901"
+
+ingress:
+  enabled: true
+  ingressClassName: "nginx"
+  hostname: iot.minio
+```
+
+### 部署对外的 service
+
+在 ```service.yaml``` 里添加 NodePort 类型的 Service，对外提供服务（非必需，功能同 ingress）:
+
+```bash
+# vim /usr/local/k8s/minio/minio/templates/service.yaml
+```
+
+```yml
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "common.names.fullname" . }}-service
+  namespace: {{ .Release.Namespace | quote }}
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+spec:
+  type: NodePort
+  ports:
+    - name: minio-api
+      port: {{ .Values.service.ports.api }}
+      targetPort: minio-api
+      nodePort: {{ .Values.service.nodePorts.api }}
+    - name: minio-console
+      port: {{ .Values.service.ports.console }}
+      targetPort: minio-console
+      nodePort: {{ .Values.service.nodePorts.console }}
+  selector: {{- include "common.labels.matchLabels" . | nindent 4 }}
 ```
 
 ## 重新制作 chart
@@ -198,11 +242,13 @@ persistentvolume/pvc-0db60e5f-829d-4d83-9d0f-16d56723d197   8Gi        RWO      
 persistentvolume/pvc-947863a9-cb26-4d80-a9eb-a7489b33c9c3   8Gi        RWO            Delete           Bound    iot/data-minio-cluster-0                    nfs-client              4m15s
 persistentvolume/pvc-c96b141a-935a-46b8-8412-b28a05d46dc3   8Gi        RWO            Delete           Bound    iot/data-minio-cluster-2                    nfs-client              4m15s
 persistentvolume/pvc-d6ef1999-234f-4f01-9e51-d8c8c438c2a5   8Gi        RWO            Delete           Bound    iot/data-minio-cluster-3                    nfs-client              4m15s
-[root@centos-docker-163 ~]# 
 
 # kubectl get svc -n iot | grep minio
 minio-cluster                           ClusterIP   10.96.108.121    <none>        9000/TCP,9001/TCP                                                                            4m45s
 minio-cluster-headless                  ClusterIP   None             <none>        9000/TCP,9001/TCP                                                                            4m45s
+
+# kubectl get ingress -n iot | grep minio
+minio-cluster            nginx   iot.minio                  80      4m56s
 ```
 
 ## 内部访问 minio 集群
@@ -211,46 +257,17 @@ minio-cluster-headless                  ClusterIP   None             <none>     
 
 ## 外部访问 minio 集群
 
-创建 NodePort 类型的 Service:
+### 通过对外 Service 的方式
+
+在浏览器的地址栏里输入:```http://192.168.5.163:30901/```; ```用户名/密码```: ```admin/password```
+
+### 通过 ingress 的方式
+
+在任一外部服务器的 hosts 文件里配置域名映射:
 
 ```bash
-# vim /usr/local/k8s/minio/service.yaml
+# vim /etc/hosts
+192.168.5.165 iot.minio
 ```
 
-```yml
-apiVersion: v1
-kind: Service
-metadata:
-  name: minio-cluster-service
-  namespace: iot
-spec:
-  selector:
-    app.kubernetes.io/instance: minio-cluster
-    app.kubernetes.io/name: minio
-  ports:
-    - name: minio-api
-      protocol: TCP
-      port: 9000
-      targetPort: minio-api
-      nodePort: 30900
-    - name: minio-console
-      protocol: TCP
-      port: 9001
-      targetPort: minio-console
-      nodePort: 30901
-  type: NodePort
-```
-
-```bash
-# kubectl apply -f /usr/local/k8s/minio/service.yaml
-
-# kubectl get svc minio-cluster-service -n iot
-NAME                    TYPE       CLUSTER-IP       EXTERNAL-IP   PORT(S)                         AGE
-minio-cluster-service   NodePort   10.104.208.104   <none>        9000:30900/TCP,9001:30901/TCP   5m15s
-```
-
-外部服务器访问 console, ```用户名/密码```:```admin/password```:
-
-```
-http://192.168.5.163:30901
-```
+在浏览器的地址栏里输入:```http://iot.minio/```, ```用户名/密码: admin/password```
