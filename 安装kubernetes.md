@@ -2,6 +2,8 @@
 
 ## 前言
 
+[kubernetes 官网](https://kubernetes.io/docs/setup/ 'kubernetes 官网')
+
 ***基于 containerd 的容器运行时部署 k8s 集群。***
 
 - 准备三台物理机
@@ -191,6 +193,18 @@ WantedBy=multi-user.target
 cc0c0a312d5fd       3a5aa3a515f5d       3 minutes ago       Running             kube-scheduler            0                   57ea5834c6733       kube-scheduler-centos-docker-163
 29370743dd9b4       d521dd763e2e3       3 minutes ago       Running             kube-apiserver            0                   dbf69505210f0       kube-apiserver-centos-docker-163
 8419adae1fc6b       586c112956dfc       3 minutes ago       Running             kube-controller-manager   0                   ef93d9aef0c2f       kube-controller-manager-centos-docker-163
+```
+
+### 禁用 swap
+
+在各个物理机上分别执行以下命令:
+
+```bash
+# sed -i 's+/dev/mapper/centos-swap+#/dev/mapper/centos-swap+' /etc/fstab
+
+# reboot
+
+# free -mh
 ```
 
 ## 安装 kubernetes
