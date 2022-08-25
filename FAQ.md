@@ -22,6 +22,13 @@
     # free -mh
     ```
 
+## Node节点处于NotReady的状态
+
+从以下两个方面分析节点日志:
+
+- ```kubectl describe nodes <node_name>```
+- ```journalctl -f -u kubelet.service```
+
 ## [WARNING Hostname]: hostname "xxx" could not be reached
 
 添加 hostname 映射:
