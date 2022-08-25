@@ -73,6 +73,10 @@ https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64/repodata/r
 # yum install -y epel-release
 ```
 
+## "command failed" err="failed to load kubelet config file, error: failed to load Kubelet config file /var/lib/kubelet/config.yaml
+
+还需要执行 ```kubeadm init```，执行之后就会生成 ```/var/lib/kubelet/config.yaml```
+
 ## pod 无法删除，总是处于 terminate 状态
 
 强制删除 pod:
