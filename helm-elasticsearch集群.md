@@ -77,11 +77,6 @@ global:
   storageClass: "nfs-client"
   kibanaEnabled: true
 
-ingress:
-  enabled: true
-  hostname: iot.elasticsearch
-  ingressClassName: "nginx"
-
 extraEnvVars:
   - name: TZ
     value: Asia/Shanghai
@@ -459,7 +454,6 @@ elasticsearch-cluster-master-hl               ClusterIP   None             <none
 elasticsearch-cluster-service                 NodePort    10.110.116.233   <none>        9200:30200/TCP,9300:30300/TCP                                                 46m
 
 # kubectl get ingress -n iot | grep elasticsearch
-elasticsearch-cluster          nginx   iot.elasticsearch   10.102.1.248   80      46m
 elasticsearch-cluster-kibana   nginx   iot.kibana          10.102.1.248   80      46m
 ```
 
@@ -663,151 +657,7 @@ green  open   bar   juntQJk-ToWD8WiY-7xsUQ   1   1          0            0      
 
 ### 通过 ingress 的方式
 
-在任一外部服务器的 hosts 文件里配置域名映射:
-
-```bash
-# vim /etc/hosts
-192.168.5.165 iot.elasticsearch
-```
-
-外部服务器连接 elasticsearch 集群:
-
-```bash
-# curl -k -u elastic:elastic -XPUT http://iot.elasticsearch/bar/?pretty
-{
-  "acknowledged" : true,
-  "shards_acknowledged" : true,
-  "index" : "bar"
-}
-
-# curl -k -u elastic:elastic -XGET http://iot.elasticsearch/_cat/indices?v
-health status index uuid                   pri rep docs.count docs.deleted store.size pri.store.size
-green  open   bar   juntQJk-ToWD8WiY-7xsUQ   1   1          0            0       450b           225b
-green  open   foo   guioAO1vSt2u7onjZ3t6FA   1   1          0            0       450b           225b
-
-# curl -k -u elastic:elastic -XDELETE http://iot.elasticsearch/foo?pretty
-{
-  "acknowledged" : true
-}
-
-# curl -k -u elastic:elastic -XGET http://iot.elasticsearch/_cat/indices?v
-health status index uuid                   pri rep docs.count docs.deleted store.size pri.store.size
-green  open   bar   juntQJk-ToWD8WiY-7xsUQ   1   1          0            0       450b           225b
-
-# curl -k -u elastic:elastic -XGET http://iot.elasticsearch/_cluster/health?pretty=true
-{
-  "cluster_name" : "elastic",
-  "status" : "green",
-  "timed_out" : false,
-  "number_of_nodes" : 8,
-  "number_of_data_nodes" : 3,
-  "active_primary_shards" : 12,
-  "active_shards" : 24,
-  "relocating_shards" : 0,
-  "initializing_shards" : 0,
-  "unassigned_shards" : 0,
-  "delayed_unassigned_shards" : 0,
-  "number_of_pending_tasks" : 0,
-  "number_of_in_flight_fetch" : 0,
-  "task_max_waiting_in_queue_millis" : 0,
-  "active_shards_percent_as_number" : 100.0
-}
-```
-
-查看系统用户:
-
-```bash
-# curl -k -u elastic:elastic -XGET http://iot.elasticsearch/_security/user?pretty
-{
-  "elastic" : {
-    "username" : "elastic",
-    "roles" : [
-      "superuser"
-    ],
-    "full_name" : null,
-    "email" : null,
-    "metadata" : {
-      "_reserved" : true
-    },
-    "enabled" : true
-  },
-  "kibana" : {
-    "username" : "kibana",
-    "roles" : [
-      "kibana_system"
-    ],
-    "full_name" : null,
-    "email" : null,
-    "metadata" : {
-      "_reserved" : true,
-      "_deprecated" : true,
-      "_deprecated_reason" : "Please use the [kibana_system] user instead."
-    },
-    "enabled" : true
-  },
-  "kibana_system" : {
-    "username" : "kibana_system",
-    "roles" : [
-      "kibana_system"
-    ],
-    "full_name" : null,
-    "email" : null,
-    "metadata" : {
-      "_reserved" : true
-    },
-    "enabled" : true
-  },
-  "logstash_system" : {
-    "username" : "logstash_system",
-    "roles" : [
-      "logstash_system"
-    ],
-    "full_name" : null,
-    "email" : null,
-    "metadata" : {
-      "_reserved" : true
-    },
-    "enabled" : true
-  },
-  "beats_system" : {
-    "username" : "beats_system",
-    "roles" : [
-      "beats_system"
-    ],
-    "full_name" : null,
-    "email" : null,
-    "metadata" : {
-      "_reserved" : true
-    },
-    "enabled" : true
-  },
-  "apm_system" : {
-    "username" : "apm_system",
-    "roles" : [
-      "apm_system"
-    ],
-    "full_name" : null,
-    "email" : null,
-    "metadata" : {
-      "_reserved" : true
-    },
-    "enabled" : true
-  },
-  "remote_monitoring_user" : {
-    "username" : "remote_monitoring_user",
-    "roles" : [
-      "remote_monitoring_collector",
-      "remote_monitoring_agent"
-    ],
-    "full_name" : null,
-    "email" : null,
-    "metadata" : {
-      "_reserved" : true
-    },
-    "enabled" : true
-  }
-}
-```
+待完善
 
 ## 外部访问 kibana
 
