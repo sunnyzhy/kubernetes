@@ -796,3 +796,13 @@ kube-system    kube-scheduler-centos-docker-163            1/1     Running   2  
    # curl 127.0.0.1:10249/proxyMode
    ipvs
    ```
+
+## FAQ
+
+### 忘记 master 节点 init 后的 join 命令
+
+执行以下命令重新生成 join 命令:
+
+```bash
+kubeadm token create --print-join-command
+```
