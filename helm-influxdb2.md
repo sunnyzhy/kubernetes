@@ -261,43 +261,8 @@ $ cat /bitnami/influxdb/configs | grep token
 
 ### 从 secret 里获取
 
-编辑 secret:
-
 ```bash
-# kubectl edit secret influxdb -n iot
-```
-
-```yml
-# Please edit the object below. Lines beginning with a '#' will be ignored,
-# and an empty file will abort the edit. If an error occurs while saving this file will be
-# reopened with the relevant failures.
-#
-apiVersion: v1
-data:
-  admin-user-password: cGFzc3dvcmQ=
-  admin-user-token: aGh6VE9VTkJMT2tmMmtuMlRiaE4=
-kind: Secret
-metadata:
-  annotations:
-    meta.helm.sh/release-name: influxdb
-    meta.helm.sh/release-namespace: iot
-  creationTimestamp: "2022-08-26T01:26:35Z"
-  labels:
-    app.kubernetes.io/instance: influxdb
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/name: influxdb
-    helm.sh/chart: influxdb-5.3.11
-  name: influxdb
-  namespace: iot
-  resourceVersion: "206150"
-  uid: 0387ee37-5b65-47a3-8d3b-78c0f2c93a3d
-type: Opaque
-```
-
-解码 ```admin-user-token```:
-
-```bash
-# echo -n aGh6VE9VTkJMT2tmMmtuMlRiaE4= | base64 --decode
+# echo $(kubectl get secret influxdb -n iot -o jsonpath="{.data.admin-user-token}" | base64 -d)
 hhzTOUNBLOkf2kn2TbhN
 ```
 
