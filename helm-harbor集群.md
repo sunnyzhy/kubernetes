@@ -179,4 +179,4 @@ harbor-ingress-notary   <none>   notary.harbor.domain                   80      
 192.168.5.165 core.harbor.domain
 ```
 
-在浏览器的地址栏里输入:```http://core.harbor.domain/```, ```用户名/密码: admin/adminpassword```
+在浏览器的地址栏里输入:```https://core.harbor.domain/```, ```用户名/密码: admin/adminpassword```
