@@ -92,6 +92,13 @@ service:
     restAPI: "30200"
     transport: "30300"
 
+ingress:
+  enabled: true
+  hostname: iot.elasticsearch
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+  ingressClassName: "nginx"
+
 master:
   replicaCount: 3
   tolerations:
@@ -111,6 +118,8 @@ data:
 coordinating:
   replicaCount: 2
 ```
+
+***注: 如果 elasticsearch 开启了 ```X-Pack(security.enabled=true)```，那么就需要在 ingress.annotations 里添加 ```nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"```，用于把 http 请求转发给后台的 https 服务。比如请求 ```http://iot.elasticsearch/``` 会转发给 https://iot.elasticsearch/***
 
 #### 部署 service 实例
 
@@ -454,7 +463,8 @@ elasticsearch-cluster-master-hl               ClusterIP   None             <none
 elasticsearch-cluster-service                 NodePort    10.110.116.233   <none>        9200:30200/TCP,9300:30300/TCP                                                 46m
 
 # kubectl get ingress -n iot | grep elasticsearch
-elasticsearch-cluster-kibana   nginx   iot.kibana          10.102.1.248   80      46m
+elasticsearch-cluster          nginx   iot.elasticsearch   10.108.27.226   80      46m
+elasticsearch-cluster-kibana   nginx   iot.kibana          10.108.27.226   80      46m
 ```
 
 ## 内部访问 elasticsearch 集群
@@ -657,7 +667,151 @@ green  open   bar   juntQJk-ToWD8WiY-7xsUQ   1   1          0            0      
 
 ### 通过 ingress 的方式
 
-待完善
+在任一外部服务器的 hosts 文件里配置域名映射:
+
+```bash
+# vim /etc/hosts
+192.168.5.165 iot.elasticsearch
+```
+
+外部服务器连接 elasticsearch 集群:
+
+```bash
+# curl -k -u elastic:elastic -XPUT https://iot.elasticsearch/bar/?pretty
+{
+  "acknowledged" : true,
+  "shards_acknowledged" : true,
+  "index" : "bar"
+}
+
+# curl -k -u elastic:elastic -XGET https://iot.elasticsearch/_cat/indices?v
+health status index uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+green  open   bar   juntQJk-ToWD8WiY-7xsUQ   1   1          0            0       450b           225b
+green  open   foo   guioAO1vSt2u7onjZ3t6FA   1   1          0            0       450b           225b
+
+# curl -k -u elastic:elastic -XDELETE https://iot.elasticsearch/foo?pretty
+{
+  "acknowledged" : true
+}
+
+# curl -k -u elastic:elastic -XGET https://iot.elasticsearch/_cat/indices?v
+health status index uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+green  open   bar   juntQJk-ToWD8WiY-7xsUQ   1   1          0            0       450b           225b
+
+# curl -k -u elastic:elastic -XGET https://iot.elasticsearch/_cluster/health?pretty=true
+{
+  "cluster_name" : "elastic",
+  "status" : "green",
+  "timed_out" : false,
+  "number_of_nodes" : 8,
+  "number_of_data_nodes" : 3,
+  "active_primary_shards" : 12,
+  "active_shards" : 24,
+  "relocating_shards" : 0,
+  "initializing_shards" : 0,
+  "unassigned_shards" : 0,
+  "delayed_unassigned_shards" : 0,
+  "number_of_pending_tasks" : 0,
+  "number_of_in_flight_fetch" : 0,
+  "task_max_waiting_in_queue_millis" : 0,
+  "active_shards_percent_as_number" : 100.0
+}
+```
+
+查看系统用户:
+
+```bash
+# curl -k -u elastic:elastic -XGET https://iot.elasticsearch/_security/user?pretty
+{
+  "elastic" : {
+    "username" : "elastic",
+    "roles" : [
+      "superuser"
+    ],
+    "full_name" : null,
+    "email" : null,
+    "metadata" : {
+      "_reserved" : true
+    },
+    "enabled" : true
+  },
+  "kibana" : {
+    "username" : "kibana",
+    "roles" : [
+      "kibana_system"
+    ],
+    "full_name" : null,
+    "email" : null,
+    "metadata" : {
+      "_reserved" : true,
+      "_deprecated" : true,
+      "_deprecated_reason" : "Please use the [kibana_system] user instead."
+    },
+    "enabled" : true
+  },
+  "kibana_system" : {
+    "username" : "kibana_system",
+    "roles" : [
+      "kibana_system"
+    ],
+    "full_name" : null,
+    "email" : null,
+    "metadata" : {
+      "_reserved" : true
+    },
+    "enabled" : true
+  },
+  "logstash_system" : {
+    "username" : "logstash_system",
+    "roles" : [
+      "logstash_system"
+    ],
+    "full_name" : null,
+    "email" : null,
+    "metadata" : {
+      "_reserved" : true
+    },
+    "enabled" : true
+  },
+  "beats_system" : {
+    "username" : "beats_system",
+    "roles" : [
+      "beats_system"
+    ],
+    "full_name" : null,
+    "email" : null,
+    "metadata" : {
+      "_reserved" : true
+    },
+    "enabled" : true
+  },
+  "apm_system" : {
+    "username" : "apm_system",
+    "roles" : [
+      "apm_system"
+    ],
+    "full_name" : null,
+    "email" : null,
+    "metadata" : {
+      "_reserved" : true
+    },
+    "enabled" : true
+  },
+  "remote_monitoring_user" : {
+    "username" : "remote_monitoring_user",
+    "roles" : [
+      "remote_monitoring_collector",
+      "remote_monitoring_agent"
+    ],
+    "full_name" : null,
+    "email" : null,
+    "metadata" : {
+      "_reserved" : true
+    },
+    "enabled" : true
+  }
+}
+```
 
 ## 外部访问 kibana
 
