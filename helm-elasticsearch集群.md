@@ -119,7 +119,7 @@ coordinating:
   replicaCount: 2
 ```
 
-***注: 如果 elasticsearch 开启了 ```X-Pack(security.enabled=true)```，那么就需要在 ingress.annotations 里添加 ```nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"```，用于把 http 请求转发给后台的 https 服务。比如请求 ```http://iot.elasticsearch/``` 会转发给 https://iot.elasticsearch/***
+***注: 如果 elasticsearch 开启了 ```X-Pack(security.enabled=true)```，那么就需要在 ingress.annotations 里添加 ```nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"```，用于把 http 请求转发给后台的 https 服务。比如请求 ```http://iot.elasticsearch/``` 会转发给 ```https://iot.elasticsearch/```***
 
 #### 部署 service 实例
 
