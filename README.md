@@ -9,9 +9,19 @@ Download the k8s-\<VERSION\>.tar.gz archive from https://github.com/sunnyzhy/kub
 
    master_ip is your master machine ip, such as ```./k8s-cluster.sh 192.168.0.100```
 
-## Default config files
+## Installing ingress-nginx
 
-### containerd config file
+[ingress-nginx](./ingress-nginx%E5%AE%89%E8%A3%85.md 'ingress-nginx')
+
+## Installing NFS
+
+[NFS](./%E5%8A%A8%E6%80%81NFS-helm.md 'NFS')
+
+## Supplement
+
+### Default config files
+
+#### containerd config file
 
 ```bash
 # containerd config default | tee /etc/containerd/config.toml
@@ -33,7 +43,7 @@ Replace image repository ```k8s.gcr.io``` with ```registry.aliyuncs.com/google_c
 sed -i 's+k8s.gcr.io/pause:3.6+registry.aliyuncs.com/google_containers/pause:3.6+' /etc/containerd/config.toml
 ```
 
-### kubeadm config file
+#### kubeadm config file
 
 ```bash
 # kubeadm config print init-defaults > /usr/local/kubeadm.yaml
@@ -55,22 +65,22 @@ Replace image repository ```k8s.gcr.io``` with ```registry.aliyuncs.com/google_c
 sed -i 's+k8s.gcr.io+registry.aliyuncs.com\/google_containers+' /usr/local/kubeadm.yaml
 ```
 
-## Change CR
+### Change CR
 
-### kubelet use containerd
+#### kubelet use containerd
 
 ```bash
 # vim /etc/sysconfig/kubelet
 KUBELET_EXTRA_ARGS="--container-runtime=remote --container-runtime-endpoint=unix:///run/containerd/containerd.sock --pod-infra-container-image=registry.aliyuncs.com/google_containers/pause:3.7"
 ```
 
-### kubeadm use containerd
+#### kubeadm use containerd
 
 ```bash
 # kubeadm init --control-plane-endpoint=192.168.5.163 --pod-network-cidr=10.244.0.0/16 --cri-socket=unix:///run/containerd/containerd.sock --image-repository registry.aliyuncs.com/google_containers
 ```
 
-or
+OR
 
 ```bash
 # kubeadm init --control-plane-endpoint=192.168.5.163 --pod-network-cidr=10.244.0.0/16 --config=/usr/local/kubeadm.yaml
