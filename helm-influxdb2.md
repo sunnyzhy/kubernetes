@@ -56,6 +56,9 @@ auth:
     password: "password"
 
 influxdb:
+  extraEnvVars: 
+    - name: TZ
+      value: Asia/Shanghai
   service:
     nodePorts:
       http: "30186"
