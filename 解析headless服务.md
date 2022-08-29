@@ -14,13 +14,15 @@ kubectl get svc -n kube-system | grep 'kube-dns' | awk '{print $3}'
 
 ## 解析 headless 服务
 
-### 通过 ```nslookup``` 命令解析
+### 解析 headless 服务
+
+#### 通过 ```nslookup``` 命令解析
 
 ```bash
 nslookup <headless_service_name>.<namespace>.svc.cluster.local <kube-system CLUSTER-IP>
 ```
 
-### 通过 ```dig``` 命令解析
+#### 通过 ```dig``` 命令解析
 
 ```bash
 dig <headless_service_name>.<namespace>.svc.cluster.local @<kube-system CLUSTER-IP>
@@ -33,3 +35,26 @@ dig <headless_service_name>.<namespace>.svc.cluster.local @<kube-system CLUSTER-
 ```bash
 dig <headless_service_name>.<namespace>.svc.cluster.local @<kube-system CLUSTER-IP> +short
 ```
+
+### 解析 pod
+
+#### 通过 ```nslookup``` 命令解析
+
+```bash
+nslookup <pod_name>.<headless_service_name>.<namespace>.svc.cluster.local <kube-system CLUSTER-IP>
+```
+
+#### 通过 ```dig``` 命令解析
+
+```bash
+dig <pod_name>.<headless_service_name>.<namespace>.svc.cluster.local @<kube-system CLUSTER-IP>
+```
+
+```bash
+dig <pod_name>.<headless_service_name>.<namespace>.svc.cluster.local @<kube-system CLUSTER-IP> +nocomments +noquestion +noauthority +noadditional +nostats
+```
+
+```bash
+dig <pod_name>.<headless_service_name>.<namespace>.svc.cluster.local @<kube-system CLUSTER-IP> +short
+```
+
