@@ -1,4 +1,4 @@
-# helm - influxdb 集群
+# helm - influxdb1.8 集群
 
 ## 前言
 
