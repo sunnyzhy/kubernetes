@@ -85,6 +85,12 @@ https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64/repodata/r
 # kubectl delete pod <pod-name> -n <namespace> --force --grace-period=0
 ```
 
+批量强制删除 pod:
+
+```bash
+# kubectl delete pod $(kubectl get pod -n <namespace> | grep <pod-name> | awk '{print $1}') -n <namespace> --force --grace-period=0
+```
+
 ## ingress 把前端的 http 请求转发给后台的 https 服务
 
 ```yml
