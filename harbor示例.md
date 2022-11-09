@@ -25,11 +25,32 @@
 
 #### 修改 docker 的启动参数
 
+##### 修改参数
+
+###### 方法一
+
 ```bash
 # vim /usr/lib/systemd/system/docker.service
 ```
 
 在 ```ExecStart``` 配置项的最末位置添加 ``` --insecure-registry core.harbor.domain```
+
+###### 方法二
+
+```bash
+# vim /etc/docker/daemon.json
+```
+
+```json
+{
+  "registry-mirrors": ["https://6848w7y3.mirror.aliyuncs.com"],
+  "insecure-registries": ["core.harbor.domain"]
+}
+```
+
+在 ```daemon.json``` 里添加 ```"insecure-registries": ["core.harbor.domain"]```
+
+##### 重启 docker
 
 ```bash
 # systemctl daemon-reload
