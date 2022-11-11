@@ -136,6 +136,10 @@ a2ae92ffcd29: Pushed
 
 ## FAQ
 
+### x509: certificate signed by unknown authority
+
+#### 情况一 docker login
+
 ```bash
 # docker login core.harbor.domain
 Username: admin
@@ -144,3 +148,9 @@ Error response from daemon: Get "https://core.harbor.domain/v2/": x509: certific
 ```
 
 需要修改 docker 的启动参数，在 ```ExecStart``` 配置项的最末位置添加 ``` --insecure-registry core.harbor.domain```
+
+#### 情况二 k8s 拉取镜像
+
+使用自建https，不被信任，网上有很多解决办法，都不行。
+建议购买备案域名进行，添加服务器信任的方式不生效。
+
