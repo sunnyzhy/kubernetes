@@ -50,6 +50,16 @@
 
 在 ```daemon.json``` 里添加 ```"insecure-registries": ["core.harbor.domain"]```
 
+###### 方法三
+
+```bash
+# mkdir -p /etc/docker/certs.d/core.harbor.domain
+
+# cp ca.crt /etc/docker/certs.d/core.harbor.domain/ca.crt
+```
+
+把自签名的 ca 证书添加到信任。
+
 ##### 重启 docker
 
 ```bash
