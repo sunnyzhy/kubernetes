@@ -76,10 +76,24 @@
 
 #### 登录 harbor
 
+##### 登录方式一
+
 ```bash
 # docker login core.harbor.domain
 Username: admin
 Password: adminpassword
+WARNING! Your password will be stored unencrypted in /root/.docker/config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+
+Login Succeeded
+```
+
+##### 登录方式二
+
+```bash
+# docker login -u admin -p adminpassword core.harbor.domain
+WARNING! Using --password via the CLI is insecure. Use --password-stdin.
 WARNING! Your password will be stored unencrypted in /root/.docker/config.json.
 Configure a credential helper to remove this warning. See
 https://docs.docker.com/engine/reference/commandline/login/#credentials-store
