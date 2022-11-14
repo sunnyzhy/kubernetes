@@ -159,5 +159,6 @@ Error response from daemon: Get "https://core.harbor.domain/v2/": x509: certific
 
 正确的做法: 
 
-1. 使用阿里云容器镜像服务或其他的公网镜像服务
-2. 购买备案域名
+1. 参考 [containerd拉取harbor私有仓库的镜像](https://github.com/sunnyzhy/kubernetes/blob/main/containerd%E6%8B%89%E5%8F%96harbor%E7%A7%81%E6%9C%89%E4%BB%93%E5%BA%93%E7%9A%84%E9%95%9C%E5%83%8F.md 'containerd拉取harbor私有仓库的镜像')
+2. 使用阿里云容器镜像服务或其他的公网镜像服务
+3. 购买备案域名
