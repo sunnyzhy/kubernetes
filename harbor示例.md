@@ -147,7 +147,7 @@ Password: adminpassword
 Error response from daemon: Get "https://core.harbor.domain/v2/": x509: certificate signed by unknown authority
 ```
 
-***参考  ```修改 docker 的启动参数``` 的章节。***
+***参考  ```修改 docker 的启动参数``` 这一章节。***
 
 #### 情况二 - kubernetes 拉取 harbor 镜像
 
