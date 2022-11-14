@@ -1,5 +1,7 @@
 # containerd 拉取 harbor 私有仓库的镜像
 
+***在 kubernetes 所有的节点下执行以下操作。***
+
 ##  配置 ssl 证书
 
 ```bash
