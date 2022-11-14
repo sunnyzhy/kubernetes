@@ -157,4 +157,7 @@ Error response from daemon: Get "https://core.harbor.domain/v2/": x509: certific
 2. ```修改 docker 的启动参数``` 不生效
 3. 添加证书信任的方式不生效
 
-正确的做法: 购买备案域名。
+正确的做法: 
+
+1. 使用阿里云容器镜像服务或其他的公网镜像服务
+2. 购买备案域名
