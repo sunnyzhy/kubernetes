@@ -43,3 +43,21 @@ systemctl daemon-reload
 
 systemctl restart containerd
 ```
+
+## 查看镜像
+
+```bash
+ctr image ls
+```
+
+## 拉取镜像
+
+```bash
+ctr image pull core.harbor.domain/<NAMESPACE>/<IMAGE_NAME>:<TAG>
+```
+
+## 删除镜像
+
+```bash
+ctr image rm core.harbor.domain/<NAMESPACE>/<IMAGE_NAME>:<TAG>
+```
