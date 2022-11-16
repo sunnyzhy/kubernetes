@@ -159,3 +159,33 @@ spec:
 ```bash
 kubectl apply -f <STATEFULSET_NAME>.yml
 ```
+
+## FAQ
+
+### 问题 1
+
+执行 ```crictl pull``` 时报以下警告:
+
+```
+WARN[0000] image connect using default endpoints: [unix:///var/run/dockershim.sock unix:///run/containerd/containerd.sock unix:///run/crio/crio.sock unix:///var/run/cri-dockerd.sock]. As the default settings are now deprecated, you should set the endpoint instead.
+```
+
+原因: 由于 ```crictl``` 不知道使用哪个 ```sock``` 导致的
+
+解决方法:
+
+```bash
+# crictl config runtime-endpoint unix:///run/containerd/containerd.sock
+
+# crictl config image-endpoint unix:///run/containerd/containerd.sock
+
+# systemctl daemon-reload
+
+# cat /etc/crictl.yaml
+runtime-endpoint: "unix:///run/containerd/containerd.sock"
+image-endpoint: "unix:///run/containerd/containerd.sock"
+timeout: 0
+debug: false
+pull-image-on-create: false
+disable-pull-on-run: false
+```
