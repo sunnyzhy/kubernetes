@@ -82,6 +82,12 @@ ctr image rm core.harbor.domain/<NAMESPACE>/<IMAGE_NAME>:<TAG>
 1. ```ctr``` 是 ```containerd``` 自带的 CLI 命令行工具
 2. ```crictl``` 是 ```kubernetes``` 中 CRI（容器运行时接口）的客户端，```kubernetes``` 使用 ```crictl``` 与 ```containerd``` 进行交互
 3. ```crictl``` 使用命名空间是 ```k8s.io```，即 ```crictl image list``` 等价于 ```ctr -n=k8s.io image list```
+   - 指定命名空间拉取镜像
+      ```bash
+      ctr -n k8s.io image pull core.harbor.domain/<NAMESPACE>/<IMAGE_NAME>:<TAG>
+      
+      crictl image ls
+      ```
 
 ***可以使用 ```crictl``` 来测试 ```kubernetes``` 能否成功拉取 harbor 仓库里的镜像。***
 
