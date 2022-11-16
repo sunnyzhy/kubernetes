@@ -5,13 +5,13 @@
 ##  配置 ssl 证书
 
 ```bash
-mkdir -p /etc/containerd/core.harbor.domain
+mkdir -p /etc/containerd/certs.d/core.harbor.domain
 
-cp /xxx/ca.crt /etc/containerd/core.harbor.domain
+cp /xxx/harbor/ca.crt /etc/containerd/certs.d/core.harbor.domain
 
-cp /xxx/tls.crt /etc/containerd/core.harbor.domain
+cp /xxx/harbor/tls.crt /etc/containerd/certs.d/core.harbor.domain
 
-cp /xxx/tls.key /etc/containerd/core.harbor.domain
+cp /xxx/harbor/tls.key /etc/containerd/certs.d/core.harbor.domain
 ```
 
 ## 修改 containerd 的配置文件
@@ -24,9 +24,9 @@ vim /etc/containerd/config.toml
       [plugins."io.containerd.grpc.v1.cri".registry.configs]
         [plugins."io.containerd.grpc.v1.cri".registry.configs."core.harbor.domain".tls]
           insecure_skip_verify = false # 是否跳过证书认证
-          ca_file = "/etc/containerd/core.harbor.domain/ca.crt" # CA 证书
-          cert_file = "/etc/containerd/core.harbor.domain/tls.crt" # harbor 证书
-          key_file = "/etc/containerd/core.harbor.domain/tls.key" # harbor 私钥 
+          ca_file = "/etc/containerd/certs.d/core.harbor.domain/ca.crt" # CA 证书
+          cert_file = "/etc/containerd/certs.d/core.harbor.domain/tls.crt" # harbor 证书
+          key_file = "/etc/containerd/certs.d/core.harbor.domain/tls.key" # harbor 私钥 
         [plugins."io.containerd.grpc.v1.cri".registry.configs."core.harbor.domain".auth]
           username = "admin"  # 私有仓库的用户名
           password = "adminpassword" # 私有仓库的密码
