@@ -1,4 +1,4 @@
-# containerd 拉取 harbor 私有仓库的镜像
+# containerd 拉取 harbor 仓库里的镜像
 
 ***在 kubernetes 所有的节点下执行以下操作。***
 
@@ -76,6 +76,13 @@ ctr image pull --user <USERNAME>:<PASSWORD> --tlscacert ca.crt core.harbor.domai
 ```bash
 ctr image rm core.harbor.domain/<NAMESPACE>/<IMAGE_NAME>:<TAG>
 ```
+
+## ```ctr``` 和 ```crictl``` 的区别
+
+1. ```ctr``` 是 ```containerd``` 自带的 CLI 命令行工具
+2. ```crictl``` 是 ```kubernetes``` 中 CRI（容器运行时接口）的客户端，```kubernetes``` 使用 ```crictl``` 与 ```containerd``` 进行交互
+
+***可以使用 ```crictl``` 来测试 ```kubernetes``` 能否成功拉取 harbor 仓库里的镜像。***
 
 ## 示例
 
