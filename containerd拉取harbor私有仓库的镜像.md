@@ -57,9 +57,15 @@ ctr image ls
 
 ## 拉取镜像
 
+在 ```config.toml``` 里配置了 ```tls```:
+
 ```bash
 ctr image pull core.harbor.domain/<NAMESPACE>/<IMAGE_NAME>:<TAG>
+```
 
+没有在 ```config.toml``` 里配置 ```tls```:
+
+```bash
 ctr image pull --user <USERNAME>:<PASSWORD> -k core.harbor.domain/<NAMESPACE>/<IMAGE_NAME>:<TAG>
 
 ctr image pull --user <USERNAME>:<PASSWORD> --tlscacert ca.crt core.harbor.domain/<NAMESPACE>/<IMAGE_NAME>:<TAG>
