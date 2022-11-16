@@ -71,7 +71,7 @@ ctr image rm core.harbor.domain/<NAMESPACE>/<IMAGE_NAME>:<TAG>
 
 ### 使用 ```config.toml``` 里配置的认证信息
 
-创建 <STATEFULSET_NAME>.yml:
+创建 ```<STATEFULSET_NAME>.yml```:
 
 ```yml
 apiVersion: apps/v1
@@ -112,7 +112,7 @@ kubectl create secret docker-registry harbor-pull-secret \
     --namespace=<NAMESPACE>
 ```
 
-创建 <STATEFULSET_NAME>.yml:
+创建 ```<STATEFULSET_NAME>.yml```:
 
 ```yml
 apiVersion: apps/v1
