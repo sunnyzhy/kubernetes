@@ -36,6 +36,11 @@ vim /etc/containerd/config.toml
           endpoint = ["https://core.harbor.domain/"]
 ```
 
+harbor 的认证配置有两种方式:
+
+1. 在 ```config.toml``` 里添加配置项 ```[plugins."io.containerd.grpc.v1.cri".registry.configs."core.harbor.domain".auth]```
+2. 创建 ```secrect```， 在 ```secrect``` 里配置账号密码
+
 ## 重启 containerd 服务
 
 ```bash
@@ -60,4 +65,80 @@ ctr image pull core.harbor.domain/<NAMESPACE>/<IMAGE_NAME>:<TAG>
 
 ```bash
 ctr image rm core.harbor.domain/<NAMESPACE>/<IMAGE_NAME>:<TAG>
+```
+
+## 示例
+
+### 使用 ```config.toml``` 里配置的认证信息
+
+创建 <STATEFULSET_NAME>.yml:
+
+```yml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: <STATEFULSET_NAME>
+  namespace: <NAMESPACE>
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: <STATEFULSET_NAME>
+    spec:
+      containers:
+        - name: <CONTAINER_NAME>
+          image: core.harbor.domain/<NAMESPACE>/<IMAGE>:<TAG>
+          imagePullPolicy: IfNotPresent
+```
+
+运行 StatefulSet:
+
+```bash
+kubectl apply -f <STATEFULSET_NAME>.yml
+```
+
+### 创建 ```secrect```
+
+不需要在 ```config.toml``` 里配置认证信息，只需创建 ```secrect```， 并在 ```secrect``` 里配置账号密码。
+
+创建 secrect:
+
+```bash
+kubectl create secret docker-registry harbor-pull-secret \
+    --docker-server=core.harbor.domain \
+    --docker-username=admin \
+    --docker-password=adminpassword \
+    --namespace=<NAMESPACE>
+```
+
+创建 <STATEFULSET_NAME>.yml:
+
+```yml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: <STATEFULSET_NAME>
+  namespace: <NAMESPACE>
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: <STATEFULSET_NAME>
+    spec:
+      imagePullSecrets:
+        - name: harbor-pull-secret
+      containers:
+        - name: <CONTAINER_NAME>
+          image: core.harbor.domain/<NAMESPACE>/<IMAGE>:<TAG>
+          imagePullPolicy: IfNotPresent
+```
+
+***注: 在 imagePullSecrets 里指明 secrect 的 name***
+
+运行 StatefulSet:
+
+```bash
+kubectl apply -f <STATEFULSET_NAME>.yml
 ```
