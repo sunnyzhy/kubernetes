@@ -59,6 +59,10 @@ ctr image ls
 
 ```bash
 ctr image pull core.harbor.domain/<NAMESPACE>/<IMAGE_NAME>:<TAG>
+
+ctr image pull --user <USERNAME>:<PASSWORD> -k core.harbor.domain/<NAMESPACE>/<IMAGE_NAME>:<TAG>
+
+ctr image pull --user <USERNAME>:<PASSWORD> --tlscacert ca.crt core.harbor.domain/<NAMESPACE>/<IMAGE_NAME>:<TAG>
 ```
 
 ## 删除镜像
