@@ -1,6 +1,22 @@
 # containerd 拉取 harbor 仓库里的镜像
 
-***在 kubernetes 所有的节点下执行以下操作。***
+## 前言
+
+```ctr``` 和 ```crictl``` 的区别:
+
+1. ```ctr``` 是 ```containerd``` 自带的 CLI 命令行工具
+2. ```crictl``` 是 ```kubernetes``` 中 CRI（容器运行时接口）的客户端，```kubernetes``` 使用 ```crictl``` 与 ```containerd``` 进行交互
+3. ```crictl``` 使用命名空间是 ```k8s.io```，即 ```crictl image list``` 等价于 ```ctr -n=k8s.io image list```
+   - 指定命名空间拉取镜像
+      ```bash
+      ctr -n k8s.io image pull core.harbor.domain/<NAMESPACE>/<IMAGE_NAME>:<TAG>
+      
+      crictl image ls
+      ```
+
+***可以使用 ```crictl``` 来测试 ```kubernetes``` 能否成功拉取 harbor 仓库里的镜像。***
+
+***注: 在 kubernetes 所有的节点下执行以下操作。***
 
 ##  配置 ssl 证书
 
@@ -52,7 +68,17 @@ systemctl restart containerd
 ## 查看镜像
 
 ```bash
-ctr image ls
+ctr -n k8s.io image ls
+```
+
+## 推送镜像
+
+```bash
+ctr -n k8s.io tag <IMAGE_NAME>:<TAG> core.harbor.domain/<HARBOR_PROJECT_NAME>/<IMAGE_NAME>:<TAG>
+
+ctr -n k8s.io image push --user <USERNAME>:<PASSWORD> -k core.harbor.domain/<HARBOR_PROJECT_NAME>/<IMAGE_NAME>:<TAG>
+
+ctr -n k8s.io image push --user <USERNAME>:<PASSWORD> --tlscacert ca.crt core.harbor.domain/<HARBOR_PROJECT_NAME>/<IMAGE_NAME>:<TAG>
 ```
 
 ## 拉取镜像
@@ -60,36 +86,22 @@ ctr image ls
 在 ```config.toml``` 里配置了 ```tls```:
 
 ```bash
-ctr image pull core.harbor.domain/<NAMESPACE>/<IMAGE_NAME>:<TAG>
+ctr -n k8s.io image pull core.harbor.domain/<HARBOR_PROJECT_NAME>/<IMAGE_NAME>:<TAG>
 ```
 
 没有在 ```config.toml``` 里配置 ```tls```:
 
 ```bash
-ctr image pull --user <USERNAME>:<PASSWORD> -k core.harbor.domain/<NAMESPACE>/<IMAGE_NAME>:<TAG>
+ctr -n k8s.io image pull --user <USERNAME>:<PASSWORD> -k core.harbor.domain/<HARBOR_PROJECT_NAME>/<IMAGE_NAME>:<TAG>
 
-ctr image pull --user <USERNAME>:<PASSWORD> --tlscacert ca.crt core.harbor.domain/<NAMESPACE>/<IMAGE_NAME>:<TAG>
+ctr -n k8s.io image pull --user <USERNAME>:<PASSWORD> --tlscacert ca.crt core.harbor.domain/<HARBOR_PROJECT_NAME>/<IMAGE_NAME>:<TAG>
 ```
 
 ## 删除镜像
 
 ```bash
-ctr image rm core.harbor.domain/<NAMESPACE>/<IMAGE_NAME>:<TAG>
+ctr -n k8s.io image rm core.harbor.domain/<HARBOR_PROJECT_NAME>/<IMAGE_NAME>:<TAG>
 ```
-
-## ```ctr``` 和 ```crictl``` 的区别
-
-1. ```ctr``` 是 ```containerd``` 自带的 CLI 命令行工具
-2. ```crictl``` 是 ```kubernetes``` 中 CRI（容器运行时接口）的客户端，```kubernetes``` 使用 ```crictl``` 与 ```containerd``` 进行交互
-3. ```crictl``` 使用命名空间是 ```k8s.io```，即 ```crictl image list``` 等价于 ```ctr -n=k8s.io image list```
-   - 指定命名空间拉取镜像
-      ```bash
-      ctr -n k8s.io image pull core.harbor.domain/<NAMESPACE>/<IMAGE_NAME>:<TAG>
-      
-      crictl image ls
-      ```
-
-***可以使用 ```crictl``` 来测试 ```kubernetes``` 能否成功拉取 harbor 仓库里的镜像。***
 
 ## 示例
 
@@ -112,7 +124,7 @@ spec:
     spec:
       containers:
         - name: <CONTAINER_NAME>
-          image: core.harbor.domain/<NAMESPACE>/<IMAGE>:<TAG>
+          image: core.harbor.domain/<HARBOR_PROJECT_NAME>/<IMAGE>:<TAG>
           imagePullPolicy: IfNotPresent
 ```
 
@@ -155,7 +167,7 @@ spec:
         - name: harbor-pull-secret
       containers:
         - name: <CONTAINER_NAME>
-          image: core.harbor.domain/<NAMESPACE>/<IMAGE>:<TAG>
+          image: core.harbor.domain/<HARBOR_PROJECT_NAME>/<IMAGE>:<TAG>
           imagePullPolicy: IfNotPresent
 ```
 
