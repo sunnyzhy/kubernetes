@@ -114,6 +114,12 @@ ctr -n k8s.io image pull --user <USERNAME>:<PASSWORD> --tlscacert ca.crt core.ha
 ctr -n k8s.io image rm core.harbor.domain/<HARBOR_PROJECT_NAME>/<IMAGE_NAME>:<TAG>
 ```
 
+## 查看日志
+
+```bash
+journalctl -u containerd
+```
+
 ## 示例
 
 ### 使用 ```config.toml``` 里配置的认证信息
