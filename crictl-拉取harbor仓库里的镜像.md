@@ -1,5 +1,7 @@
 # crictl - 拉取 harbor 仓库里的镜像
 
+***注: 在 kubernetes 所有的节点下执行以下操作。***
+
 ##  配置 ```crictl.yaml```
 
 ```bash
