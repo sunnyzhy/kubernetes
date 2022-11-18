@@ -171,4 +171,4 @@ spec:
 kubectl apply -f <STATEFULSET_NAME>.yml
 ```
 
-***如果拉取镜像失败，请参考 \[crictl-拉取harbor仓库里的镜像#FAQ\](https://github.com/sunnyzhy/kubernetes/blob/main/crictl-%E6%8B%89%E5%8F%96harbor%E4%BB%93%E5%BA%93%E9%87%8C%E7%9A%84%E9%95%9C%E5%83%8F.md#faq 'crictl-拉取harbor仓库里的镜像#FAQ')***
+***如果拉取镜像失败，请参考 [crictl-拉取harbor仓库里的镜像#FAQ](https://github.com/sunnyzhy/kubernetes/blob/main/crictl-%E6%8B%89%E5%8F%96harbor%E4%BB%93%E5%BA%93%E9%87%8C%E7%9A%84%E9%95%9C%E5%83%8F.md#faq 'crictl-拉取harbor仓库里的镜像#FAQ')***
