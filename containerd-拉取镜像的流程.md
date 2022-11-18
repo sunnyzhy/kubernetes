@@ -104,7 +104,7 @@
 
 解析步骤 ```3``` 里获取的 ```manifest```，分别下载镜像的 ```config``` 和 ```layers```
 
-***拉取镜像的完整流程:***
+***拉取镜像的完整流程：***
 
 ```bash
 # ctr -n k8s.io image pull core.harbor.domain/iot/busybox:latest
