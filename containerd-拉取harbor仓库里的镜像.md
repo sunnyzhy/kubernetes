@@ -1,4 +1,4 @@
-# containerd 拉取 harbor 仓库里的镜像
+# containerd - 拉取 harbor 仓库里的镜像
 
 ## 前言
 
