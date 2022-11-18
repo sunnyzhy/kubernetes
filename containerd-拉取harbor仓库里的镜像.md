@@ -1,30 +1,5 @@
 # containerd - 拉取 harbor 仓库里的镜像
 
-## 前言
-
-```ctr``` 和 ```crictl``` 的区别:
-
-1. ```ctr``` 是 ```containerd``` 自带的 CLI 命令行工具
-2. ```crictl``` 是 ```kubernetes``` 中 CRI（容器运行时接口）的客户端，```kubernetes``` 使用 ```crictl``` 与 ```containerd``` 进行交互
-3. ```ctr``` 的命名空间默认是 ```default```，查看所有命名空间:
-   ```bash
-   # ctr ns ls
-   NAME    LABELS 
-   default        
-   k8s.io         
-   moby           
-   ```
-4. ```crictl``` 有且仅有一个命名空间 ```k8s.io```
-5. ```crictl image list``` 等价于 ```ctr -n k8s.io image list```
-   - 指定命名空间拉取镜像
-      ```bash
-      ctr -n k8s.io image pull core.harbor.domain/<NAMESPACE>/<IMAGE_NAME>:<TAG>
-      
-      crictl image ls
-      ```
-
-***可以使用 ```crictl``` 来测试 ```kubernetes``` 能否成功拉取 harbor 仓库里的镜像。***
-
 ***注: 在 kubernetes 所有的节点下执行以下操作。***
 
 ##  配置 ssl 证书
@@ -196,58 +171,4 @@ spec:
 kubectl apply -f <STATEFULSET_NAME>.yml
 ```
 
-## FAQ
-
-### 问题 1
-
-执行 ```crictl pull``` 时出现以下警告信息:
-
-```
-WARN[0000] image connect using default endpoints: [unix:///var/run/dockershim.sock unix:///run/containerd/containerd.sock unix:///run/crio/crio.sock unix:///var/run/cri-dockerd.sock]. As the default settings are now deprecated, you should set the endpoint instead.
-```
-
-原因: 由于 ```crictl``` 不知道使用哪个 ```sock``` 导致的
-
-解决方法:
-
-```bash
-# crictl config runtime-endpoint unix:///run/containerd/containerd.sock
-
-# crictl config image-endpoint unix:///run/containerd/containerd.sock
-
-# systemctl daemon-reload
-
-# cat /etc/crictl.yaml
-runtime-endpoint: "unix:///run/containerd/containerd.sock"
-image-endpoint: "unix:///run/containerd/containerd.sock"
-timeout: 0
-debug: false
-pull-image-on-create: false
-disable-pull-on-run: false
-```
-
-### 问题 2
-
-执行 ```crictl pull``` 时出现以下错误信息:
-
-```
-FATA[0000] pulling image: rpc error: code = NotFound desc = failed to pull and unpack image "core.harbor.domain/iot/busybox:latest": failed to unpack image on snapshotter overlayfs: unexpected media type text/html for sha256:515882a4af328b4195c94fb9398ac2325fa28674d7587084b3d5d633a1cefe59: not found
-```
-
-原因: ```harbor``` 使用的 ```API``` 是 ```Harbor API V2.0```
-
-解决方法:
-
-```bash
-vim /etc/containerd/config.toml
-```
-
-```toml
-      [plugins."io.containerd.grpc.v1.cri".registry.mirrors]
-        [plugins."io.containerd.grpc.v1.cri".registry.mirrors."core.harbor.domain"]
-          endpoint = ["https://core.harbor.domain/v2"]
-```
-
-***注：在 ```endpoint``` 的末尾加 ```/v2```***
-
-参考： [github issues](https://github.com/k3s-io/k3s/issues/5502 'github issues')
+***如果拉取镜像失败，请参考 [crictl-拉取harbor仓库里的镜像#FAQ](https://github.com/sunnyzhy/kubernetes/blob/main/crictl-%E6%8B%89%E5%8F%96harbor%E4%BB%93%E5%BA%93%E9%87%8C%E7%9A%84%E9%95%9C%E5%83%8F.md#faq 'crictl-拉取harbor仓库里的镜像#FAQ')***
