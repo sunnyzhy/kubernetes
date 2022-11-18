@@ -103,3 +103,16 @@
 ## 4. 拉取镜像的 config 和 layers
 
 解析步骤 ```3``` 里获取的 ```manifest```，分别下载镜像的 ```config``` 和 ```layers```
+
+***拉取镜像的完整流程:***
+
+```bash
+# ctr -n k8s.io image pull core.harbor.domain/iot/busybox:latest
+core.harbor.domain/iot/busybox:latest:                                            resolved       |++++++++++++++++++++++++++++++++++++++| 
+manifest-sha256:62ffc2ed7554e4c6d360bce40bbcf196573dd27c4ce080641a2c59867e732dee: done           |++++++++++++++++++++++++++++++++++++++| 
+layer-sha256:5cc84ad355aaa64f46ea9c7bbcc319a9d808ab15088a27209c9e70ef86e5a2aa:    done           |++++++++++++++++++++++++++++++++++++++| 
+config-sha256:beae173ccac6ad749f76713cf4440fe3d21d1043fe616dfbe30775815d1d0f6a:   done           |++++++++++++++++++++++++++++++++++++++| 
+elapsed: 0.3 s                                                                    total:   0.0 B (0.0 B/s)                                         
+unpacking linux/amd64 sha256:62ffc2ed7554e4c6d360bce40bbcf196573dd27c4ce080641a2c59867e732dee...
+done: 131.029994ms	
+```
