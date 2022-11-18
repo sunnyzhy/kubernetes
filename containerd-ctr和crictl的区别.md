@@ -24,3 +24,5 @@
       
       crictl image ls
       ```
+
+***可以使用 ```crictl``` 来测试 ```kubernetes``` 能否成功拉取 harbor 仓库里的镜像。***
