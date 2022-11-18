@@ -58,8 +58,10 @@ vim /etc/containerd/config.toml
 
       [plugins."io.containerd.grpc.v1.cri".registry.mirrors]
         [plugins."io.containerd.grpc.v1.cri".registry.mirrors."core.harbor.domain"] # 配置私有仓库
-          endpoint = ["https://core.harbor.domain/"]
+          endpoint = ["https://core.harbor.domain/v2"]
 ```
+
+***注：如果 ```harbor``` 使用的 ```API``` 是 ```Harbor API V2.0```，就需要在镜像的 ```endpoint``` 末尾加 ```/v2```***
 
 harbor 的认证配置有两种方式:
 
@@ -192,7 +194,7 @@ kubectl apply -f <STATEFULSET_NAME>.yml
 
 ### 问题 1
 
-执行 ```crictl pull``` 时报以下警告:
+执行 ```crictl pull``` 时出现以下警告信息:
 
 ```
 WARN[0000] image connect using default endpoints: [unix:///var/run/dockershim.sock unix:///run/containerd/containerd.sock unix:///run/crio/crio.sock unix:///var/run/cri-dockerd.sock]. As the default settings are now deprecated, you should set the endpoint instead.
@@ -217,3 +219,29 @@ debug: false
 pull-image-on-create: false
 disable-pull-on-run: false
 ```
+
+### 问题 2
+
+执行 ```crictl pull``` 时出现以下错误信息:
+
+```
+FATA[0000] pulling image: rpc error: code = NotFound desc = failed to pull and unpack image "core.harbor.domain/iot/busybox:latest": failed to unpack image on snapshotter overlayfs: unexpected media type text/html for sha256:515882a4af328b4195c94fb9398ac2325fa28674d7587084b3d5d633a1cefe59: not found
+```
+
+原因: ```harbor``` 使用的 ```API``` 是 ```Harbor API V2.0```
+
+解决方法:
+
+```bash
+vim /etc/containerd/config.toml
+```
+
+```toml
+      [plugins."io.containerd.grpc.v1.cri".registry.mirrors]
+        [plugins."io.containerd.grpc.v1.cri".registry.mirrors."core.harbor.domain"]
+          endpoint = ["https://core.harbor.domain/v2"]
+```
+
+***注：在 ```endpoint``` 的末尾加 ```/v2```***
+
+参考： [github issues](https://github.com/k3s-io/k3s/issues/5502 'github issues')
