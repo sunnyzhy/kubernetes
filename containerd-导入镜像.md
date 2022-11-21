@@ -100,37 +100,3 @@ crictl image ls | grep <IMAGE_NAME>
 ```bash
 crictl image ls | grep demo
 ```
-
-## 拉取镜像
-
-### ctr
-
-命令:
-
-```bash
-ctr -n k8s.io image pull core.harbor.domain/<HARBOR_PROJECT_NAME>/<IMAGE_NAME>:<TAG>
-```
-
-示例:
-
-```bash
-# ctr -n k8s.io image pull core.harbor.domain/iot/demo:latest
-...
-unpacking linux/amd64 sha256:3d9a4b431b0c3e187213571ae7afebe9b8aac2901dd32c68dd3bcf6557bbff1a...
-done: 15.378527ms
-```
-
-### crictl
-
-命令:
-
-```bash
-crictl pull core.harbor.domain/<HARBOR_PROJECT_NAME>/<IMAGE_NAME>:<TAG>
-```
-
-示例:
-
-```bash
-# crictl pull core.harbor.domain/iot/demo:latest
-Image is up to date for sha256:887d059cde5724b73185a5abda6772b2708599c6bd37abcd1437c7aa43f91cae
-```
