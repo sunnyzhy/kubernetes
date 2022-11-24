@@ -85,7 +85,7 @@ vrrp_instance VI_1 {
 }
 ```
 
-state 取值:
+***state 取值:***
 
 - MASTER: 主机标识
 - BACKUP: 备机标识
