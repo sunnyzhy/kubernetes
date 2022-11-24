@@ -85,6 +85,11 @@ vrrp_instance VI_1 {
 }
 ```
 
+state 取值:
+
+- MASTER: 主机标识
+- BACKUP: 备机标识
+
 查看主机网卡(VIP 192.168.5.100 已生效):
 
 ```bash
