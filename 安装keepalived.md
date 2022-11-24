@@ -1,4 +1,4 @@
-# 部署 keepalived
+# 安装 keepalived
 
 ## 安装
 
