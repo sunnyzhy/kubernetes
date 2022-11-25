@@ -98,3 +98,14 @@ ingress:
   annotations:
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
 ```
+
+## ksoftirqd/n 占用 cpu 过高
+
+1. 查看设备造成的中断情况:
+   ```bash
+   cat /proc/interrupts
+   ```
+2. 针对中断数量高的网卡(如: ens33)，执行以一操作:
+   ```bash
+   ifdown ens33 && ifup ens33
+   ```
