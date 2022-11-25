@@ -110,7 +110,7 @@ eureka:
     client:
         fetch-registry: true
         serviceUrl:
-		    defaultZone: ${EUREKA_SERVER}
+            defaultZone: ${EUREKA_SERVER}
     instance:
         prefer-ip-address: true
 ```
