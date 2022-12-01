@@ -83,12 +83,39 @@ vrrp_instance VI_1 {
         192.168.5.100
     }
 }
+
+virtual_server 192.168.5.100 443 {
+    delay_loop 6
+    lb_algo rr
+    lb_kind NAT
+    persistence_timeout 50
+    protocol TCP
+
+    real_server 192.168.5.61 443 {
+        weight 1
+        SSL_GET {
+            url {
+              path /
+              digest ff20ad2481f97b1754ef3e12ecd3a9cc
+            }
+            url {
+              path /mrtg/
+              digest 9b3a0c85a887a256d6939da88aabd8cd
+            }
+            connect_timeout 3
+            retry 3
+            delay_before_retry 3
+        }
+    }
+}
 ```
 
 ***state 取值:***
 
 - MASTER: 主机标识
 - BACKUP: 备机标识
+
+***```keepalived``` 并不会创建端口，所以 ```virtual_server``` 和 ```real_server``` 的端口必须一致且必须是 ```real_server``` 的端口。***
 
 查看主机网卡(VIP 192.168.5.100 已生效):
 
