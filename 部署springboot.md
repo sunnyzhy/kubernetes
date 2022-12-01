@@ -1,8 +1,17 @@
 # 部署 springboot
 
+## 前言
+
+- 准备三台物理机
+    |物理机IP|物理机HostName|角色|VIP|
+    |--|--|--|--|
+    |192.168.5.163|centos-docker-163|manager|192.168.5.100|
+    |192.168.5.164|centos-docker-164|worker|192.168.5.100|
+    |192.168.5.165|centos-docker-165|worker|192.168.5.100|
+
 ## eureka server
 
-### application.yml
+### ```application.yml```
 
 ```yml
 eureka:
@@ -28,7 +37,7 @@ spring:
             password: eureka
 ```
 
-### StatefulSet.yml
+### ```StatefulSet.yml```
 
 ```yml
 apiVersion: v1
@@ -103,7 +112,7 @@ spec:
 
 ### 配置 eureka server
 
-#### application.yml
+#### ```application.yml```
 
 ```yml
 eureka:
@@ -115,7 +124,7 @@ eureka:
         prefer-ip-address: true
 ```
 
-#### StatefulSet.yml
+#### ```StatefulSet.yml```
 
 在 spec.template.spec.containers 里配置:
 
@@ -129,7 +138,7 @@ env:
 
 ### 配置 redis
 
-#### application.yml
+#### ```application.yml```
 
 ```yml
 spring:
@@ -147,7 +156,7 @@ spring:
             nodes: ${REDIS_SERVER}
 ```
 
-#### StatefulSet.yml
+#### ```StatefulSet.yml```
 
 在 spec.template.spec.containers 里配置:
 
@@ -161,7 +170,7 @@ env:
 
 ### 配置 myql
 
-#### application.yml
+#### ```application.yml```
 
 ```yml
 spring:
@@ -183,7 +192,7 @@ spring:
         username: root
 ```
 
-#### StatefulSet.yml
+#### ```StatefulSet.yml```
 
 在 spec.template.spec.containers 里配置:
 
@@ -194,3 +203,65 @@ env:
 ```
 
 注: ```MYSQL_SERVER``` 的格式为 ```<service_name>```
+
+### 配置 minio
+
+#### ```server-block.conf```
+
+```conf
+upstream lb_minio {
+	server minio-cluster-0.minio-cluster-headless.iot:9000;
+	server minio-cluster-1.minio-cluster-headless.iot:9000;
+	server minio-cluster-2.minio-cluster-headless.iot:9000;
+	server minio-cluster-3.minio-cluster-headless.iot:9000;
+}
+
+upstream lb_minio_ui {
+	server minio-cluster-0.minio-cluster-headless.iot:9001;
+	server minio-cluster-1.minio-cluster-headless.iot:9001;
+	server minio-cluster-2.minio-cluster-headless.iot:9001;
+	server minio-cluster-3.minio-cluster-headless.iot:9001;
+}
+
+server {
+  listen 0.0.0.0:9000;
+
+  location / {
+	proxy_pass http://lb_minio;
+  }
+}
+
+server {
+  listen 0.0.0.0:9001;
+
+  location / {
+	proxy_pass http://lb_minio_ui;
+  }
+}
+```
+
+***注:***
+
+- ```nginx``` 集群的 ```ConfigMap``` 名称是 ```nginx-cluster-server-block```
+- ```upstream``` 格式为 ```server <pod_name>.<headless_service_name>.<namespace>:9000;```
+
+#### ```application.yml```
+
+```yml
+minio:
+    endpoint: ${MINIO_SERVER}
+    access-key: admin
+    secret-key: password
+```
+
+#### ```StatefulSet.yml```
+
+在 spec.template.spec.containers 里配置:
+
+```yml
+env:
+  - name: MINIO_SERVER
+    value: "http://192.168.5.100:30090/"
+```
+
+注: ```MINIO_SERVER``` 的格式为 ```http://<vip>:<nodePort>/```
