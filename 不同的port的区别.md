@@ -6,7 +6,7 @@
 
 - port: 是 kubernetes 集群内部访问 service 的端口，通过 ```clusterIP:port``` 可以访问到某个 service，在 Service 类型的模板里
 
-- nodePort: 是外部访问 kubernetes 集群中 service 的端口，通过 ```nodeIP:nodePort``` 可以从外部访问到某个 service，在 Service 类型的模板里
+- nodePort: 是外部访问 kubernetes 集群中 service 的端口，端口取值范围: ```30000-32767```，通过 ```nodeIP:nodePort``` 可以从外部访问到某个 service，在 Service 类型的模板里
 
 - targetPort: 是 kubernetes 集群内部 service 访问 pod 的端口，通过 ```podIP:targetPort``` 可以访问到某个 pod，在 Service 类型的模板里
    ***注: targetPort 映射的端口必须是 containerPort 端口***
