@@ -279,11 +279,13 @@ Hint: Some lines were ellipsized, use -l to show in full.
 
 由于使用的 CR 是 containerd，所以 kubelet 服务跟 container 相关的参数如下:
 
-- --container-runtime=remote
+- ```--container-runtime=remote```: 指定 kubelet 要使用的容器运行时，可选值: docker、remote、rkt (deprecated)，默认为 docker ，即使用 kubelet 内置的容器运行时 dockershim。当需要使用外部容器运行时，该参数配置为 remote，并设置 ```-–container-runtime-endpoint``` 参数值为监听的 ```unix socket``` 位置。
 
-- --container-runtime-endpoint=unix:///var/run/containerd/containerd.sock
+- ```--container-runtime-endpoint=unix:///var/run/containerd/containerd.sock```: 容器运行时的 endpoint，可选值:
+   - ```unix:///var/run/dockershim.sock```，默认使用本地的 docker 作为容器运行时
+   - ```unix:///run/containerd/containerd.sock```，即使用本地的 containerd 作为容器运行时
 
-- --pod-infra-container-image=registry.aliyuncs.com/google_containers/pause:3.7
+- ```--pod-infra-container-image=registry.aliyuncs.com/google_containers/pause:3.7```: pod sandbox 的镜像地址，默认值为 ```k8s.gcr.io/pause:3.5```
 
 查看 cgroupDriver 详情:
 
