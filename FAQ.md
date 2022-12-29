@@ -1,5 +1,11 @@
 # FAQ
 
+## 0/3 nodes are available: 1 node(s) had untolerated taint {node-role.kubernetes.io/control-plane: }, 2 node(s) had untolerated taint {node.kubernetes.io/unreachable: }
+
+服务器内存不足或磁盘空间不足引起的。
+
+解决方法：清理服务器内存或磁盘空间。
+
 ## [WARNING Swap]: swap is enabled; production deployments should disable swap unless testing the NodeSwap feature gate of the kubelet
 
 - 临时禁用 swap:
