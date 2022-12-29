@@ -48,7 +48,8 @@
 ## INSTALLATION FAILED: cannot re-use a name that is still in use
 
 1. 使用 ```helm -n <namespace> ls -a``` 查询全部，可以看到失败的服务
-2. 使用 ```helm -n <namespace> delete <packagename>``` 删除失败的安装
+2. 使用 ```helm -n <namespace> delete <packagename>``` 删除失败的服务
+   或使用 ```helm -n <namespace> delete $(helm -n <namespace> ls -a | awk 'NR>1 {print $1}')``` 批量删除失败的服务
 3. 使用 ```helm install``` 重新安装服务。
 
 ## failure: repodata/repomd.xml from kubernetes: [Errno 256] No more mirrors to try.
