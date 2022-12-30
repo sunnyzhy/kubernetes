@@ -440,6 +440,14 @@ Commercial support is available at
 
 ### 403 Forbidden
 
-原因: nfs 挂载的 nginx 目录缺少 ```index.html```
+原因: ```nfs``` 挂载的 ```nginx``` 目录缺少 ```index.html```
 
-解决方法: 在 nfs 挂载的 nginx 目录里创建 ```index.html```
+解决方法: 在 ```nfs``` 挂载的 ```nginx``` 目录里创建 ```index.html```
+
+### 修改 ```server-block.conf``` 之后，如何实时生效
+
+重启 ```nginx-cluster``` 的 ```pod``` 即可(删除 ```pod``` 之后， ```kubernetes``` 会自动拉起 ```pod```):
+
+```bash
+kubectl delete pod $(kubectl get pod -n iot | grep nginx-cluster- | awk '{print $1}') -n iot
+```
