@@ -13,7 +13,7 @@
 
 - harbor 账号的密码长度必须 ```>= 10```
 
-- harbor 默认的镜像存储路径: ```/data/registry```
+- harbor 默认的镜像存储路径: ```/data```
 
 ## 创建 harbor 目录
 
