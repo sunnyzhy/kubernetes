@@ -115,7 +115,7 @@ ingress:
    ifdown ens33 && ifup ens33
    ```
 
-## 如何查看 pod 镜像的位置
+## 如何删除 pod 缓存的镜像
 
 1. 查看 pod 所在的工作节点:
    ```bash
@@ -131,7 +131,13 @@ ingress:
        Image:          core.harbor.domain/iot/nginx:latest
        Image ID:       core.harbor.domain/iot/nginx@sha256:55f8523e6a3a7200f9b5c74a881075161aaf68442fc5f802fe3d55f059ced390
    ```
-2. 转到工作节点 ```192.168.5.165``` 查看镜像:
+3. 转到工作节点 ```192.168.5.165``` 查看镜像:
    ```bash
-   # ctr -n k8s.io image ls | grep nginx
+   # ctr -n k8s.io image ls | grep nginx | awk '{print $1}'
+   core.harbor.domain/iot/nginx:latest
+   core.harbor.domain/iot/nginx@sha256:55f8523e6a3a7200f9b5c74a881075161aaf68442fc5f802fe3d55f059ced390
+   ```
+4. 删除镜像:
+   ```bash
+   ctr -n k8s.io image remove $(ctr -n k8s.io image ls | grep nginx | awk '{print $1}')
    ```
