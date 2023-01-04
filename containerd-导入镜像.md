@@ -33,7 +33,7 @@ docker tag demo:1.0.0 core.harbor.domain/iot/demo:latest
 命令:
 
 ```bash
-docker save ccore.harbor.domain/<PROJECT_NAME>/<IMAGE_NAME>:<TAG> > <IMAGE_NAME>.tar
+docker save core.harbor.domain/<PROJECT_NAME>/<IMAGE_NAME>:<TAG> > <IMAGE_NAME>.tar
 ```
 
 示例:
