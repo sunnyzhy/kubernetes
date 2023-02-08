@@ -83,3 +83,11 @@ OR
 ```bash
 # kubeadm init --control-plane-endpoint=192.168.5.163 --pod-network-cidr=10.244.0.0/16 --config=/usr/local/kubeadm.yaml
 ```
+
+### Kubeconfig file
+
+```bash
+# ls ~/.kube/config
+
+# cat ~/.kube/config
+```
