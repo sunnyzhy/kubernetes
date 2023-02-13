@@ -1,5 +1,13 @@
 # Getting started with kubernetes
 
+## Disable swap
+
+```bash
+sed -i 's+/dev/mapper/centos-swap+#/dev/mapper/centos-swap+' /etc/fstab
+
+reboot
+```
+
 ## Installing kubernetes
 
 Download the ```k8s-\<VERSION\>.tar.gz``` archive from https://github.com/sunnyzhy/kubernetes/releases
