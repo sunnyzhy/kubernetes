@@ -3,7 +3,13 @@
 ## Installing kubernetes
 
 Download the ```k8s-\<VERSION\>.tar.gz``` archive from https://github.com/sunnyzhy/kubernetes/releases
-  
+
+- unzip file:
+   ```bash
+   tar  -xzvf k8s-\<VERSION\>.tar.gz
+   cd k8s-\<VERSION\>
+   chmod +x k8s.sh k8s-cluster.sh
+   ```
 - run ```./k8s.sh``` to install kubernetes
 - run ```./k8s-cluster.sh <master_ip>``` to install kubernetes cluster, such as ```./k8s-cluster.sh 192.168.0.100```
 
