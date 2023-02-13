@@ -28,6 +28,8 @@ Download the ```k8s-\<VERSION\>.tar.gz``` archive from https://github.com/sunnyz
 #### containerd config file
 
 ```bash
+# mkdir -p /etc/containerd
+
 # containerd config default | tee /etc/containerd/config.toml
 
 # cat /etc/containerd/config.toml
