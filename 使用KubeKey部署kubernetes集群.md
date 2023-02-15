@@ -4,7 +4,10 @@
 
 ## 前言
 
-本示例以 ```v3.0.7``` 版本为例。
+- kubekey 版本: v3.0.7
+
+- kubernetes 版本: v1.25.3
+   ***注：必须是 kubekey 支持的 kubernetes 版本***
 
 - 准备三台物理机
     |物理机IP|物理机HostName|角色|
@@ -64,7 +67,7 @@ spec:
     address: ""
     port: 6443
   kubernetes:
-    version: v1.26.1
+    version: v1.25.3
     clusterName: cluster.local
     autoRenewCerts: true
     containerManager: containerd
