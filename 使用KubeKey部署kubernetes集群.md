@@ -18,6 +18,10 @@
 
 ## 部署
 
+### 安装 NFS
+
+参考 [NFS](./动态NFS.md 'NFS')
+
 ### 设置国内源
 
 ```bash
@@ -91,7 +95,19 @@ spec:
     namespaceOverride: ""
     registryMirrors: []
     insecureRegistries: []
-  addons: []
+  addons:
+  - name: nfs-client 
+    namespace: kube-system
+    sources:
+      chart:
+        name: nfs-client-provisioner
+        path: /usr/local/charts
+        values:
+        - nfs.server=20.0.3.101
+        - nfs.path=/nfs/data
+        - image.repository=registry.cn-beijing.aliyuncs.com/kubesphereio/nfs-subdir-external-provisioner
+        - image.tag=v4.0.2
+        - storageClass.defaultClass=true
 
 
 ```
