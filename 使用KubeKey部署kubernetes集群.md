@@ -18,6 +18,12 @@
 
 ## 部署
 
+### 设置国内源
+
+```bash
+export KKZONE=cn
+```
+
 ### 下载 kubekey
 
 [kubekey-v3.0.7](https://github.com/kubesphere/kubekey/releases/download/v3.0.7/kubekey-v3.0.7-linux-amd64.tar.gz 'kubekey-v3.0.7')
