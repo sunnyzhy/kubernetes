@@ -18,9 +18,26 @@ Download the ```k8s-\<VERSION\>.tar.gz``` archive from https://github.com/sunnyz
    cd k8s-\<VERSION\>
    chmod +x *.sh
    ```
-- run ```./install-manager.sh <manager_ip>``` to install kubernetes manager, such as ```./install-manager.sh 192.168.0.100```
+- run ```./install-manager.sh <manager_ip>``` to install kubernetes manager:
+   ```bash
+   # ./install-manager.sh 192.168.0.100
+   You can now join any number of control-plane nodes by copying certificate authorities
+   and service account keys on each node and then running the following as root:
+
+     kubeadm join 192.168.0.100:6443 --token rip8zm.q66uc0n4difhnp54 \
+      --discovery-token-ca-cert-hash sha256:bef6b61859afc61d2a8cfbe14de99f891c34c37ae118e17716954707ecc11fac \
+      --control-plane 
+
+   Then you can join any number of worker nodes by running the following on each as root:
+
+   kubeadm join 192.168.0.100:6443 --token rip8zm.q66uc0n4difhnp54 \
+      --discovery-token-ca-cert-hash sha256:bef6b61859afc61d2a8cfbe14de99f891c34c37ae118e17716954707ecc11fac
+   ```
 - copy manager machine's ```/etc/kubernetes/admin.conf``` to worker machine's ```/etc/kubernetes/admin.conf```
-- run ```./install-worker.sh``` to install kubernetes worker
+- run ```./install-worker.sh <manager_ip:6443> <token> <discovery-token-ca-cert-hash>``` to install kubernetes worker:
+   ```bash
+   # ./install-worker.sh 192.168.0.100:6443 rip8zm.q66uc0n4difhnp54 sha256:bef6b61859afc61d2a8cfbe14de99f891c34c37ae118e17716954707ecc11fac
+   ```
 
 ## Installing ingress-nginx
 
