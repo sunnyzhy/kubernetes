@@ -1,6 +1,8 @@
 # Getting started with kubernetes
 
-## Disable swap
+## 安装 kubernetes
+
+### 禁用 swap
 
 ```bash
 sed -i 's+/dev/mapper/centos-swap+#/dev/mapper/centos-swap+' /etc/fstab
@@ -8,17 +10,17 @@ sed -i 's+/dev/mapper/centos-swap+#/dev/mapper/centos-swap+' /etc/fstab
 reboot
 ```
 
-## Installing kubernetes
+### 安装 kubernetes
 
-Download the ```k8s-\<VERSION\>.tar.gz``` archive from https://github.com/sunnyzhy/kubernetes/releases
+[Download archive](https://github.com/sunnyzhy/kubernetes/releases 'Download archive')
 
-- unzip file:
+- 解压:
    ```bash
    tar  -xzvf k8s-\<VERSION\>.tar.gz
    cd k8s-\<VERSION\>
    chmod +x *.sh
    ```
-- run ```./install-manager.sh <manager_ip>``` to install kubernetes manager:
+- 安装 kubernetes manager: ```./install-manager.sh <manager_ip>```
    ```bash
    # ./install-manager.sh 192.168.0.100
    You can now join any number of control-plane nodes by copying certificate authorities
@@ -33,17 +35,32 @@ Download the ```k8s-\<VERSION\>.tar.gz``` archive from https://github.com/sunnyz
    kubeadm join 192.168.0.100:6443 --token rip8zm.q66uc0n4difhnp54 \
       --discovery-token-ca-cert-hash sha256:bef6b61859afc61d2a8cfbe14de99f891c34c37ae118e17716954707ecc11fac
    ```
-- copy manager machine's ```/etc/kubernetes/admin.conf``` to worker machine's ```/etc/kubernetes/admin.conf```
-- run ```./install-worker.sh <manager_ip:6443> <token> <discovery-token-ca-cert-hash>``` to install kubernetes worker:
+- 安装 kubernetes worker: ```./install-worker.sh <manager_ip:6443> <token> <discovery-token-ca-cert-hash>```
    ```bash
    # ./install-worker.sh 192.168.0.100:6443 rip8zm.q66uc0n4difhnp54 sha256:bef6b61859afc61d2a8cfbe14de99f891c34c37ae118e17716954707ecc11fac
    ```
 
-## Installing ingress-nginx
+### 配置 ipvs 模式
+
+1. 在```管理节点```上开启 ipvs 模式:
+
+   ```bash
+   # kubectl edit cm kube-proxy -n kube-system
+   ```
+
+   ***把 ```mode: ""``` 修改为 ```mode: "ipvs"```***
+
+2. 在```管理节点```上删除当前的 kube-proxy:
+
+   ```bash
+   # kubectl get pod -n kube-system|grep kube-proxy|awk '{system("kubectl delete pod "$1" -n kube-system")}'
+   ```
+
+### 安装 ingress-nginx
 
 [ingress-nginx](./ingress-nginx%E5%AE%89%E8%A3%85.md 'ingress-nginx')
 
-## Installing NFS
+### 安装 NFS
 
 [NFS](./%E5%8A%A8%E6%80%81NFS-helm.md 'NFS')
 
