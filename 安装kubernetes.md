@@ -19,6 +19,15 @@
    - ```kubeadm```
    - ```kubectl```
 
+- 安装指定版本的 kubernetes:
+   ```bash
+   yum install -y kubelet-<version> kubectl-<version> kubeadm-<version>
+   ```
+   示例:
+   ```bash
+   yum install -y kubelet-1.24.3 kubeadm-1.24.3 kubectl-1.24.3
+   ```
+	
 ## 安装 Container Runtimes
 
 ### 安装必备环境
