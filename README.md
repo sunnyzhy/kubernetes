@@ -18,8 +18,8 @@ Download the ```k8s-\<VERSION\>.tar.gz``` archive from https://github.com/sunnyz
    cd k8s-\<VERSION\>
    chmod +x *.sh
    ```
-- run ```./install-master.sh <master_ip>``` to install kubernetes master, such as ```./install-master.sh 192.168.0.100```
-- copy master machine's ```/etc/kubernetes/admin.conf``` to worker machine's ```/etc/kubernetes/admin.conf```
+- run ```./install-manager.sh <manager_ip>``` to install kubernetes manager, such as ```./install-manager.sh 192.168.0.100```
+- copy manager machine's ```/etc/kubernetes/admin.conf``` to worker machine's ```/etc/kubernetes/admin.conf```
 - run ```./install-worker.sh``` to install kubernetes worker
 
 ## Installing ingress-nginx
