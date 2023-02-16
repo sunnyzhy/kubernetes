@@ -29,6 +29,8 @@
    ```
 	
 ## 安装 Container Runtimes
+	
+***所有的服务器都需要执行。***
 
 ### 安装必备环境
 
@@ -217,6 +219,8 @@ cc0c0a312d5fd       3a5aa3a515f5d       3 minutes ago       Running             
 ```
 
 ## 安装 kubernetes
+	
+***所有的服务器都需要执行。***
 
 ### 配置 kubernetes 的 yum 源
 
@@ -313,19 +317,23 @@ cgroupDriver: systemd
 # yum -y makecache
 ```
 
+## 配置集群
+
 ### 初始化集群
 
+***只在 ```control-plane(manager)``` 节点 192.168.5.163 上执行。***
+	
 参数说明:
 
-- --control-plane-endpoint: master 主机的 IP 地址
+- ```--control-plane-endpoint```: master 主机的 IP 地址
 
-- --pod-network-cidr=10.244.0.0/16: 集群的cidr，可以配置为 Flannel 网络模式: ```10.244.0.0/16```
+- ```--pod-network-cidr=10.244.0.0/16```: 集群的cidr，可以配置为 Flannel 网络模式: ```10.244.0.0/16```
 
-- --kubernetes-version: 当前安装的 kubernetes 的版本号，可以不写，默认会自动获取版本
+- ```--kubernetes-version```: 当前安装的 kubernetes 的版本号，可以不写，默认会自动获取版本
 
-- --cri-socket: 容器运行时接口，在初始化集群的时候，会自动获取已安装的容器运行时；可以不写，默认为: ```unix:///var/run/containerd/containerd.sock```
+- ```--cri-socket```: 容器运行时接口，在初始化集群的时候，会自动获取已安装的容器运行时；可以不写，默认为: ```unix:///var/run/containerd/containerd.sock```
 
-- --image-repository: 镜像地址，可以使用阿里云仓库地址: ```registry.aliyuncs.com/google_containers```
+- ```--image-repository```: 镜像地址，可以使用阿里云仓库地址: ```registry.aliyuncs.com/google_containers```
 
 - 其他参数为可选参数
 
@@ -413,7 +421,9 @@ kubeadm join 192.168.5.163:6443 --token lc81r0.ts58t03upj136xd9 \
 
 提示 ```Your Kubernetes control-plane has initialized successfully!``` 说明集群初始化成功。
 
-### 授权
+### 配置角色
+
+***只在 ```control-plane(manager)``` 节点 192.168.5.163 上执行。***
 
 ```
 To start using your cluster, you need to run the following as a regular user:
@@ -423,7 +433,7 @@ To start using your cluster, you need to run the following as a regular user:
   sudo chown $(id -u):$(id -g) $HOME/.kube/config
 ```
 
-根据 ```初始化集群``` 步骤里的提示，执行授权:
+根据 ```初始化集群``` 步骤里的提示配置角色:
 
 ```bash
 # mkdir -p $HOME/.kube
@@ -434,6 +444,8 @@ To start using your cluster, you need to run the following as a regular user:
 ```
 
 ### 安装 pod network
+
+***只在 ```control-plane(manager)``` 节点 192.168.5.163 上执行。***
 
 ```
 You should now deploy a pod network to the cluster.
