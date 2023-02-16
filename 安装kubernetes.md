@@ -817,3 +817,9 @@ kube-system    kube-scheduler-centos-docker-163            1/1     Running   2  
 ```bash
 kubeadm token create --print-join-command
 ```
+
+### 查看 kubernetes 日志
+
+```bash
+journalctl -xeu kubelet
+```
