@@ -32,6 +32,8 @@
 	
 ***所有的服务器都需要执行。***
 
+[Getting started with container runtimes](https://kubernetes.io/docs/setup/production-environment/container-runtimes/ 'Getting started with container runtimes')
+	
 ### 安装必备环境
 
 ```bash
@@ -66,6 +68,8 @@ net.ipv4.ip_forward                 = 1
 ```
 
 ### 安装 containerd
+
+[Getting started with containerd](https://github.com/containerd/containerd/blob/main/docs/getting-started.md 'Getting started with containerd')
 
 [containerd](https://github.com/containerd/containerd/releases 'containerd')
 
@@ -446,6 +450,8 @@ To start using your cluster, you need to run the following as a regular user:
 ### 安装 pod network
 
 ***只在 ```control-plane(manager)``` 节点 192.168.5.163 上执行。***
+	
+[Kubernetes networking model](https://kubernetes.io/docs/concepts/cluster-administration/addons/#networking-and-network-policy 'Kubernetes networking model')
 
 ```
 You should now deploy a pod network to the cluster.
