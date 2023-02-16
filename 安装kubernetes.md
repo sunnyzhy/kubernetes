@@ -453,6 +453,8 @@ To start using your cluster, you need to run the following as a regular user:
 	
 [Kubernetes networking model](https://kubernetes.io/docs/concepts/cluster-administration/addons/#networking-and-network-policy 'Kubernetes networking model')
 
+[Getting started with flannel](https://github.com/flannel-io/flannel#deploying-flannel-manually 'Getting started with flannel')
+	
 ```
 You should now deploy a pod network to the cluster.
 Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
