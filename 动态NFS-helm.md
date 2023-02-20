@@ -320,3 +320,13 @@ test-pod   0/1     Completed   0          23s
 ```bash
 # kubectl delete -f /usr/local/k8s/nfs-client-provisioner/test-claim.yaml -f /usr/local/k8s/nfs-client-provisioner/test-pod.yaml
 ```
+
+## FAQ
+
+### mount.nfs: /nfs/data is busy or already mounted
+
+```bash
+umount -l /nfs/data
+
+mount 192.168.5.163:/nfs/data /nfs/data
+```
