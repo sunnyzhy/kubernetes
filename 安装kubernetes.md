@@ -797,6 +797,33 @@ kube-system    kube-scheduler-centos-docker-163            1/1     Running   2  
 ```
 
 ### 配置 ipvs 模式
+	
+查看内核  ```lsmod|grep ip_vs``` 是否加载 ipvs，如果没有加载，就在***所有的服务器节点上执行:***
+
+```bash
+# yum -y install ipvsadm ipset
+
+# vim /etc/sysconfig/modules/ipvs.modules
+#!/bin/bash
+modprobe -- ip_vs
+modprobe -- ip_vs_rr
+modprobe -- ip_vs_wrr
+modprobe -- ip_vs_sh
+modprobe -- nf_conntrack_ipv4
+modprobe -- ip_tables
+modprobe -- ip_set
+modprobe -- xt_set
+modprobe -- ipt_set
+modprobe -- ipt_rpfilter
+modprobe -- ipt_REJECT
+modprobe -- ipip
+
+# chmod 755 /etc/sysconfig/modules/ipvs.modules
+
+# source /etc/sysconfig/modules/ipvs.modules
+
+# lsmod|grep ip_vs
+```
 
 1. 在```管理节点/工作节点```上查看模式:
 
