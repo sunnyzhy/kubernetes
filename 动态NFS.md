@@ -456,3 +456,11 @@ E0723 09:50:00.283724       1 controller.go:1004] provision "iot/test-claim" cla
             - name: nfs-client-provisioner
               image: gmoney23/nfs-client-provisioner:latest
     ```
+
+### mount.nfs: /nfs/data is busy or already mounted
+
+```bash
+umount -l /nfs/data
+
+mount 192.168.5.163:/nfs/data /nfs/data
+```
