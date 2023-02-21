@@ -294,6 +294,8 @@ redis-cluster-service   NodePort   10.108.226.8   <none>        6379:30379/TCP  
 
 外部服务器连接 redis 集群:
 
+***注: 示例仅查看 redis 集群节点，如果在在外部服务器执行 redis 命令，则需要给每个 redis-pod 创建单独的 service***
+
 ```bash
 # redis-cli -h 192.168.5.163 -p 30379 -c
 
