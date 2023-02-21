@@ -371,3 +371,13 @@ ffa7a36d730963b621569116efef36d2752af2b5 10.244.2.61:6379@16379 slave 720105715e
 06fe4dd90a960fa4a1321b70603676041f99c038 10.244.1.74:6379@16379 slave c5b35ef4faa69f731701c2b8f758bae9f1f3d7c8 0 1658820010000 1 connected
 c5b35ef4faa69f731701c2b8f758bae9f1f3d7c8 10.244.2.59:6379@16379 master - 0 1658820011000 1 connected 0-5460
 ```
+
+## FAQ
+
+### (error) MOVED
+
+- 原因: 一般是因为启动 ```redis-cli``` 时没有设置集群模式所导致
+- 解决方法: 启动 ```redis-cli``` 时加上 ```-c``` 使用集群模式
+   ```bash
+   redis-cli -h <ip> -p <port> -c
+   ```
