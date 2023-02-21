@@ -247,7 +247,7 @@ redis-cluster-headless.iot.svc.cluster.local. 14 IN A 10.244.1.115
 ```bash
 # kubectl exec -it redis-cluster-0 -n iot -- /bin/sh
 
-$ redis-cli
+$ redis-cli -c
 
 127.0.0.1:6379> cluster nodes
 d03b29ecdf9072492d79f9aa102088544fac86f4 10.244.1.116:6379@16379 slave 033ebb2a5953959792c10e9c6c42cb14dc282376 0 1659424690701 2 connected
@@ -295,7 +295,7 @@ redis-cluster-service   NodePort   10.108.226.8   <none>        6379:30379/TCP  
 外部服务器连接 redis 集群:
 
 ```bash
-# redis-cli -h 192.168.5.163 -p 30379
+# redis-cli -h 192.168.5.163 -p 30379 -c
 
 192.168.5.163:30379> cluster nodes
 NOAUTH Authentication required.
@@ -311,3 +311,13 @@ ee5fb9519167d2b67599a656b197f67080af4114 10.244.2.97:6379@16379 slave 9eda9611e4
 3f2678307ac8621e0e345591c1998f0e68d48d93 10.244.1.115:6379@16379 master - 0 1659425258000 3 connected 10923-16383
 d03b29ecdf9072492d79f9aa102088544fac86f4 10.244.1.116:6379@16379 slave 033ebb2a5953959792c10e9c6c42cb14dc282376 0 1659425256000 2 connected
 ```
+
+## FAQ
+
+### (error) MOVED
+
+- 原因: 一般是因为启动 ```redis-cli``` 时没有设置集群模式所导致
+- 解决方法: 启动 ```redis-cli``` 时加上 ```-c``` 使用集群模式
+   ```bash
+   redis-cli -h <ip> -p <port> -c
+   ```
