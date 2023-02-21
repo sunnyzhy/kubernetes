@@ -868,5 +868,5 @@ kubeadm token create --print-join-command
 ### 查看 kubernetes 日志
 
 ```bash
-journalctl -xeu kubelet
+journalctl -fu kubelet
 ```
