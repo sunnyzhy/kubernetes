@@ -31,13 +31,13 @@ make && make install
 ```bash
 mkdir -p /etc/keepalived
 
-cp /usr/local/keepalived/etc/keepalived/keepalived.conf.sample /usr/local/keepalived/etc/keepalived/keepalived.conf
+cp /usr/local/keepalived/etc/sysconfig/keepalived  /etc/sysconfig/keepalived 
 
-cp /usr/local/keepalived/etc/keepalived/keepalived.conf /etc/keepalived
+cp /usr/local/keepalived/sbin/keepalived /usr/sbin/keepalived
 
-cp /usr/local/keepalived/etc/sysconfig/keepalived /etc/sysconfig
+cp /usr/local/keepalived-2.2.7/keepalived/etc/init.d/keepalived  /etc/init.d/keepalived
 
-cp /usr/local/keepalived/sbin/keepalived /usr/sbin
+cp /usr/local/keepalived/etc/keepalived/keepalived.conf.sample /etc/keepalived/keepalived.conf
 
 chkconfig keepalived on
 
@@ -47,6 +47,25 @@ systemctl start keepalived
 ```
 
 ## 编辑配置文件
+
+***state 取值:***
+
+- MASTER: 主机标识
+- BACKUP: 备机标识
+
+***```keepalived``` 并不会创建端口，所以 ```virtual_server``` 和 ```real_server``` 的端口必须一致且必须是 ```real_server``` 的端口。***
+
+MASTER 主要配置:
+
+- state MASTER
+- interface ens33
+- priority 100
+
+BACKUP 主要配置:
+
+- state BACKUP
+- interface ens33
+- priority 99
 
 查看主机网卡:
 
@@ -109,13 +128,6 @@ virtual_server 192.168.5.100 443 {
     }
 }
 ```
-
-***state 取值:***
-
-- MASTER: 主机标识
-- BACKUP: 备机标识
-
-***```keepalived``` 并不会创建端口，所以 ```virtual_server``` 和 ```real_server``` 的端口必须一致且必须是 ```real_server``` 的端口。***
 
 查看主机网卡(VIP 192.168.5.100 已生效):
 
