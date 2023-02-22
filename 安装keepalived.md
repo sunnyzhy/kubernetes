@@ -145,6 +145,12 @@ virtual_server 192.168.5.100 443 {
 ...
 ```
 
+## 启动
+
+```bash
+systemctl start keepalived
+```
+
 ## FAQ
 
 ### systemd[1]: Can't open PID file /run/keepalived.pid (yet?) after start: No such file or directory
