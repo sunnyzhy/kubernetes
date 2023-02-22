@@ -855,6 +855,34 @@ modprobe -- ipip
    ipvs
    ```
 
+## 重置集群
+
+***在 ```control-plane(manager)``` 节点 192.168.5.163 上执行:***
+
+```bash
+rm -rf $HOME/.kube
+
+systemctl restart kubelet 
+
+kubeadm reset
+
+kubeadm init --control-plane-endpoint=192.168.5.163 --pod-network-cidr=10.244.0.0/16 --image-repository registry.aliyuncs.com/google_containers
+
+mkdir -p $HOME/.kube
+
+cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+
+chown $(id -u):$(id -g) $HOME/.kube/config
+```
+
+***在 worker 节点上执行:***
+
+```bash
+kubeadm reset
+
+kubeadm join 192.168.5.163:6443 --token lc81r0.ts58t03upj136xd9 --discovery-token-ca-cert-hash sha256:af924c26c5b40bf4f7df8a8a396bf7904e592cde8ffc1f8bb1cece01e4f9f352
+```
+
 ## FAQ
 
 ### 忘记 master 节点 init 后的 join 命令
