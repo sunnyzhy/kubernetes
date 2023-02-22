@@ -148,7 +148,12 @@ virtual_server 192.168.5.100 443 {
 ## 启动
 
 ```bash
-systemctl start keepalived
+# systemctl start keepalived
+
+# systemctl status keepalived
+● keepalived.service - LVS and VRRP High Availability Monitor
+   Loaded: loaded (/usr/lib/systemd/system/keepalived.service; enabled; vendor preset: disabled)
+   Active: active (running)
 ```
 
 ## FAQ
