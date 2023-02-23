@@ -161,17 +161,28 @@ ingress:
    reboot
    ```
    
-   重新生成集群 ```token``` :
+   重置主节点 :
    ```bash
-   # kubeadm token create --print-join-command
-   kubeadm join 20.0.0.101:6443 --token isw8x4.cc5xq90713gsi8o3 --discovery-token-ca-cert-hash sha256:e4085e3cdfbb73ed6c31580eff2bdda3f00cdf4153a3c4fda831da2298443881 
+   rm -rf $HOME/.kube
+
+   systemctl restart kubelet
+
+   kubeadm reset
+
+   kubeadm init --control-plane-endpoint=192.168.5.163 --pod-network-cidr=10.244.0.0/16 --image-repository registry.aliyuncs.com/google_containers
+
+   mkdir -p $HOME/.kube
+
+   cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+
+   chown $(id -u):$(id -g) $HOME/.kube/config
    ```
    
-   在工作节点上执行以下命令把工作节点加入集群:
+   重置工作节点:
    ```bash
    kubeadm reset
-   
-   kubeadm join 20.0.0.101:6443 --token isw8x4.cc5xq90713gsi8o3 --discovery-token-ca-cert-hash sha256:e4085e3cdfbb73ed6c31580eff2bdda3f00cdf4153a3c4fda831da2298443881 
+
+   kubeadm join 192.168.5.163:6443 --token lc81r0.ts58t03upj136xd9 --discovery-token-ca-cert-hash sha256:af924c26c5b40bf4f7df8a8a396bf7904e592cde8ffc1f8bb1cece01e4f9f352
    ```
    
 2. ***【推荐】*** 定时备份 ```etcd``` 数据，以备数据故障时还原
