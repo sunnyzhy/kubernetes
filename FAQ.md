@@ -174,7 +174,7 @@ ingress:
    kubeadm join 20.0.0.101:6443 --token isw8x4.cc5xq90713gsi8o3 --discovery-token-ca-cert-hash sha256:e4085e3cdfbb73ed6c31580eff2bdda3f00cdf4153a3c4fda831da2298443881 
    ```
    
-2. ***【推荐】***定时备份 ```etcd``` 数据，以备数据故障时还原
+2. ***【推荐】*** 定时备份 ```etcd``` 数据，以备数据故障时还原
    - 备份脚本
       ```bash
       # vim /root/etcd_bak.sh
