@@ -79,6 +79,13 @@ architecture: replication
 
 auth:
   rootPassword: "root"
+
+primary:
+  name: primary
+
+secondary:
+  name: secondary
+  replicaCount: 1
 ```
 
 参数说明:
@@ -86,6 +93,8 @@ auth:
 - storageClass: 使用 NFS 存储
 - auth.rootPassword: root 账号的密码
 - architecture: 默认是 ```standalone```，取值范围: ```standalone/replication```
+- 1 主 1 从
+- 根据实际情况调整 ```livenessProbe```、```readinessProbe```、```startupProbe``` 的 ```initialDelaySeconds``` 的初始化延迟时间
 
 ## 重新制作 chart
 
@@ -316,3 +325,24 @@ mysql> show databases;
 | test               |
 +--------------------+
 ```
+
+## FAQ
+
+### Can't connect to local MySQL server through socket '/opt/bitnami/mysql/tmp/mysql.sock'
+
+报错的详情:
+
+```
+mysqladmin: connect to server at 'localhost' failed
+error: 'Can't connect to local MySQL server through socket '/opt/bitnami/mysql/tmp/mysql.sock' (2)'
+Check that mysqld is running and that the socket: '/opt/bitnami/mysql/tmp/mysql.sock' exists!
+```
+
+原因:
+
+mysql 服务还没有完全启动，也就还没有创建 ```mysql.sock``` 这个文件，而 ```readinessProbe``` 就已经开始检查 mysql 服务是否就绪了，从而导致检查失败。
+
+解决:
+
+将 ```livenessProbe```、```readinessProbe```、```startupProbe``` 的 ```initialDelaySeconds``` 的初始化延迟时间设置长一点。
+
