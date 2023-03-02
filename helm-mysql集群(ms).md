@@ -333,16 +333,45 @@ mysql> show databases;
 报错的详情:
 
 ```
-mysqladmin: connect to server at 'localhost' failed
-error: 'Can't connect to local MySQL server through socket '/opt/bitnami/mysql/tmp/mysql.sock' (2)'
-Check that mysqld is running and that the socket: '/opt/bitnami/mysql/tmp/mysql.sock' exists!
+Startup probe failed: mysqladmin: [Warning] Using a password on the command line interface can be insecure. mysqladmin: connect to server at 'localhost' failed error: 'Can't connect to local MySQL server through socket '/opt/bitnami/mysql/tmp/mysql.sock' (2)' Check that mysqld is running and that the socket: '/opt/bitnami/mysql/tmp/mysql.sock' exists!
 ```
 
 原因:
 
-mysql 服务还没有完全启动，也就还没有创建 ```mysql.sock``` 这个文件，而 ```readinessProbe``` 就已经开始检查 mysql 服务是否就绪了，从而导致检查失败。
+mysql 服务还没有完全启动，也就还没有创建 ```mysql.sock``` 这个文件，而 ```Startup probe``` 就已经开始检查 mysql 服务是否就绪了，从而导致检查失败。
 
 解决:
 
-将 ```livenessProbe```、```readinessProbe```、```startupProbe``` 的 ```initialDelaySeconds``` 的初始化延迟时间设置长一点。
+将 ```startupProbe``` 的 ```initialDelaySeconds``` 的初始化延迟时间设置长一点。
 
+### Access denied for user 'root'@'localhost' (using password: YES)
+
+报错的详情:
+
+```
+Startup probe failed: mysqladmin: [Warning] Using a password on the command line interface can be insecure. mysqladmin: connect to server at 'localhost' failed error: 'Access denied for user 'root'@'localhost' (using password: YES)'
+```
+
+原因:
+
+密码错误，可能是配置文件未生效。
+
+解决:
+
+- 方法1，卸载 mysql ，删除 mysql 相关的 pvc 和 pv，最后重新 install
+- 方法2，修改 configmap 的 my.cnf，跳过密码验证在 ```[mysqld]``` 里添加配置 ```skip-grant-tables```
+   1. 重启 pod
+   2. 登录容器
+   3. 修改密码
+      ```bash
+      $ mysql -uroot
+      
+      mysql> use mysql;
+      
+      mysql> ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';
+      
+      mysql> update user set user.Host='%' where user.User='root';
+
+      mysql> flush privileges;
+      ```
+   3. 修改 configmap 的 my.cnf，删除配置 ```skip-grant-tables```
