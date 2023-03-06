@@ -206,44 +206,84 @@ env:
 
 ### 配置 minio
 
-#### ```server-block.conf```
+#### 架构
+
+|192.168.5.163|192.168.5.164|192.168.5.165|
+|--|--|--|
+||pod: minio-cluster-0, minio-cluster-1|pod: minio-cluster-2, minio-cluster-3|
+||pod: jar-0|pod: jar-1|
+|物理机: nginx|物理机: nginx|物理机: nginx|
+|物理机: VIP|物理机: VIP|物理机: VIP|
+
+#### minio-service.yml
+
+```
+spec:
+  ports:
+    - name: minio-api
+      protocol: TCP
+      port: 9000
+      targetPort: minio-api
+      nodePort: 30900
+    - name: minio-console
+      protocol: TCP
+      port: 9001
+      targetPort: minio-console
+      nodePort: 30901
+```
+
+#### ```nginx.conf```
 
 ```conf
-upstream lb_minio {
-	server minio-cluster-0.minio-cluster-headless.iot:9000;
-	server minio-cluster-1.minio-cluster-headless.iot:9000;
-	server minio-cluster-2.minio-cluster-headless.iot:9000;
-	server minio-cluster-3.minio-cluster-headless.iot:9000;
-}
+   upstream lb_minio {
+        server 192.168.5.164:30900;
+        server 192.168.5.165:30900;
+   }
 
-upstream lb_minio_ui {
-	server minio-cluster-0.minio-cluster-headless.iot:9001;
-	server minio-cluster-1.minio-cluster-headless.iot:9001;
-	server minio-cluster-2.minio-cluster-headless.iot:9001;
-	server minio-cluster-3.minio-cluster-headless.iot:9001;
-}
+   upstream lb_minio_ui {
+        server 192.168.5.164:30901;
+        server 192.168.5.165:30901;
+   }
 
-server {
-  listen 0.0.0.0:9000;
+    server {
+        listen       9000;
+        server_name  localhost;
 
-  location / {
-	proxy_pass http://lb_minio;
-  }
-}
+        location / {
+           proxy_set_header Host $http_host;
+           proxy_pass http://lb_minio;
+        }
+    }
 
-server {
-  listen 0.0.0.0:9001;
+    server {
+        listen       9001;
+        server_name  localhost;
 
-  location / {
-	proxy_pass http://lb_minio_ui;
-  }
-}
+        location / {
+           proxy_set_header Host $http_host;
+           proxy_pass http://lb_minio_ui;
+        }
+    }
+
+    server {
+        listen       80;
+        server_name  localhost;
+
+        location /upload/ {
+            proxy_set_header Host $http_host;
+            proxy_pass http://lb_minio/;
+        }
+    }
 ```
 
 ***注:***
 
-- ```nginx``` 集群的 ```ConfigMap``` 名称是 ```nginx-cluster-server-block```
-- ```upstream``` 格式为 ```server <pod_name>.<headless_service_name>.<namespace>:9000;```
+- ```upstream``` 格式为: ***```server <物理机IP>:<nodePort>;```***,比如: ```192.168.5.164:30900```, ***```server``` 的个数与 ```worker``` 节点的个数一致***
+- 外部访问 ```minio-api``` 端口时映射到 pod 的流程: ```<VIP>:9000``` -> ```<物理机IP>:30900``` -> ```<Cluster IP>:9000``` -> ```<Endpoints>```
+- 外部访问 ```minio-console``` 端口时映射到 pod 的流程: ```<VIP>:9001``` -> ```<物理机IP>:30901``` -> ```<Cluster IP>:9001``` -> ```<Endpoints>```
+- 外部访问 ```minio api```: ***```http://<VIP>:9000```***，比如: ```http://192.168.5.100:9000```
+- 外部访问 ```minio console```: ***```http://<VIP>:9001```***，比如: ```http://192.168.5.100:9001```
+- 外部访问 ```minio 资源```: ***```http://<VIP>/upload/<resource>```***，比如: ```http://192.168.5.100/upload/xx.jpg```
 
 #### ```application.yml```
 
@@ -261,7 +301,7 @@ minio:
 ```yml
 env:
   - name: MINIO_SERVER
-    value: "http://192.168.5.100:30090/"
+    value: "http://192.168.5.100:9000"
 ```
 
-注: ```MINIO_SERVER``` 的格式为 ```http://<vip>:<nodePort>/```
+注: ```MINIO_SERVER``` 的格式为 ```http://<VIP>:9000```
